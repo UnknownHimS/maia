@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesis - Kid Friendly Bible</title>
+<style>
+body { font-family: Arial, sans-serif; background: #fdf6e3; padding: 20px; }
+h1 { text-align: center; color: #333; }
+#chapter { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-top: 20px; line-height: 1.6; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+button { display: block; margin: 20px auto; padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; background-color: #4caf50; color: white; cursor: pointer; }
+button:hover { background-color: #45a049; }
+select { display: block; margin: 0 auto; padding: 8px 12px; font-size: 16px; margin-top: 10px; border-radius: 5px; }
+</style>
+</head>
+<body>
+<h1>📖 Genesis - Kid Friendly Bible</h1>
+
+<select id="chapterSelect"></select>
+<div id="chapter">Select a chapter to read...</div>
+<button id="speakBtn">🔊 Read Aloud</button>
+
+<script>
+const chapters = [
+`Chapter 1: God created the world in 7 days. Light, sky, land, seas, plants, sun, moon, stars, fish, birds, animals, and finally humans. Then God rested.`,
+`Chapter 2: God made a beautiful garden called Eden. He put the first man and woman there and told them to take care of it. They could eat from any tree except one.`,
+`Chapter 3: Adam and Eve disobeyed God by eating the forbidden fruit. They realized they were naked, felt shame, and were sent out of the garden.`,
+`Chapter 4: Adam and Eve’s sons, Cain and Abel, made offerings to God. Cain became jealous and sadly hurt Abel. Life went on outside Eden.`,
+`Chapter 5: This chapter lists the family line from Adam to Noah.`,
+`Chapter 6: People became very wicked, and God decided to start over. He told Noah to build a big ark to save his family and animals.`,
+`Chapter 7: The great flood came. Noah, his family, and the animals entered the ark. Water covered the earth, but they were safe.`,
+`Chapter 8: The flood ended. Noah sent birds to check for land. God promised the world would not be destroyed by water again.`,
+`Chapter 9: God blessed Noah and his family. He gave them food and said humans could now eat animals too. God made a rainbow as His promise.`,
+`Chapter 10: The descendants of Noah’s sons spread over the earth, forming different nations and peoples.`,
+`Chapter 11: People tried to build a tall tower to reach heaven. God confused their language so they could not finish it, spreading people across the world.`,
+`Chapter 12: God called Abram (later Abraham) to leave his home and promised to make him a great nation.`,
+`Chapter 13: Abram and his nephew Lot separated to keep peace. God promised Abram all the land he could see.`,
+`Chapter 14: Abram rescued Lot when he was captured in a battle. He gave thanks to God.`,
+`Chapter 15: God promised Abram many descendants. Abram believed God, and it was counted as righteousness.`,
+`Chapter 16: Sarai gave her servant Hagar to Abram. Hagar had a son named Ishmael.`,
+`Chapter 17: God changed Abram’s name to Abraham and Sarai to Sarah. God promised them a son and made a special covenant.`,
+`Chapter 18: Three visitors came to Abraham. God told Abraham that Sarah would have a son.`,
+`Chapter 19: God destroyed Sodom and Gomorrah because of wickedness. Lot and his daughters were saved.`,
+`Chapter 20: Abraham told Abimelek that Sarah was his sister. God protected Sarah.`,
+`Chapter 21: Isaac, the promised son, was born to Abraham and Sarah. Hagar and Ishmael were sent away but God cared for them.`,
+`Chapter 22: God tested Abraham, asking him to offer Isaac. Abraham obeyed, but God stopped him and provided a ram instead.`,
+`Chapter 23: Sarah died. Abraham bought a burial place for her.`,
+`Chapter 24: Abraham sent his servant to find a wife for Isaac. The servant found Rebekah, who agreed to marry Isaac.`,
+`Chapter 25: Abraham died. Isaac had two sons, Esau and Jacob.`,
+`Chapter 26: God blessed Isaac. He lived peacefully and prospered.`,
+`Chapter 27: Jacob tricked Isaac and received the blessing meant for Esau.`,
+`Chapter 28: Jacob dreamed of a ladder to heaven. God promised him land and descendants.`,
+`Chapter 29: Jacob worked 7 years for Rachel, but was tricked into marrying Leah first. Then he married Rachel.`,
+`Chapter 30: Jacob’s family grew with children from Leah, Rachel, and their servants.`,
+`Chapter 31: Jacob left Laban’s house and returned to his own land.`,
+`Chapter 32: Jacob wrestled with God and was renamed Israel.`,
+`Chapter 33: Jacob met Esau and they made peace.`,
+`Chapter 34: Dinah was treated badly by Shechem. Jacob’s family acted to protect her.`,
+`Chapter 35: God blessed Jacob, and Rachel died giving birth to Benjamin.`,
+`Chapter 36: This chapter lists Esau’s descendants.`,
+`Chapter 37: Joseph, Jacob’s son, was sold by his brothers and taken to Egypt.`,
+`Chapter 38: Judah and Tamar story.`,
+`Chapter 39: Joseph worked in Potiphar’s house and trusted God. He was falsely accused and imprisoned.`,
+`Chapter 40: Joseph interpreted dreams in prison and gained favor with God.`,
+`Chapter 41: Pharaoh had dreams. Joseph interpreted them and became a ruler in Egypt.`,
+`Chapter 42: Joseph’s brothers came to Egypt to buy food during a famine.`,
+`Chapter 43: The brothers returned with Benjamin, Joseph tested them.`,
+`Chapter 44: Joseph tested his brothers further.`,
+`Chapter 45: Joseph revealed his identity and forgave his brothers.`,
+`Chapter 46: Jacob and his family moved to Egypt.`,
+`Chapter 47: Joseph helped Egypt survive the famine.`,
+`Chapter 48: Jacob blessed Joseph’s sons.`,
+`Chapter 49: Jacob blessed all his sons and gave final words.`,
+`Chapter 50: Jacob died. Joseph reassured his brothers of God’s plan and then he died.`
+];
+
+const chapterSelect = document.getElementById("chapterSelect");
+const chapterDiv = document.getElementById("chapter");
+const speakBtn = document.getElementById("speakBtn");
+
+// Populate dropdown
+for(let i = 0; i < chapters.length; i++) {
+  let option = document.createElement("option");
+  option.value = i;
+  option.text = "Chapter " + (i+1);
+  chapterSelect.add(option);
+}
+
+// Display selected chapter
+chapterSelect.addEventListener("change", () => {
+  const idx = chapterSelect.value;
+  chapterDiv.innerText = chapters[idx];
+});
+
+// Read aloud
+speakBtn.addEventListener("click", () => {
+  const utterance = new SpeechSynthesisUtterance(chapterDiv.innerText);
+  utterance.rate = 0.9;
+  speechSynthesis.speak(utterance);
+});
+</script>
+</body>
+</html>
