@@ -84,7 +84,7 @@
             margin: 20px auto;
             padding: 30px;
             border-radius: 20px;
-            max-width: 800px;
+            max-width: 900px;
             position: relative;
             animation: slideIn 0.3s;
         }
@@ -105,16 +105,91 @@
 
         .close:hover { color: #000; }
 
-        .dialogue-box {
-            background: #f0f0f0;
+        .hospital-scene {
+            background: #e8f5e9;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .character {
+            font-size: 4em;
+            display: inline-block;
+            animation: bounce 0.5s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .speech-bubble {
+            background: white;
             padding: 20px;
             border-radius: 15px;
             margin: 15px 0;
-            font-size: 1.2em;
+            font-size: 1.3em;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            position: relative;
         }
 
-        .patient { background: #ffe5e5; border-left: 5px solid #ff6b6b; }
-        .doctor { background: #e5f5ff; border-left: 5px solid #4facfe; }
+        .speech-bubble:before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 30px;
+            border: 10px solid transparent;
+            border-top-color: white;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .tool-btn {
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 3em;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .tool-btn:hover {
+            transform: scale(1.1);
+            border-color: #4facfe;
+        }
+
+        .tool-btn.correct {
+            background: #c8e6c9;
+            border-color: #4caf50;
+            animation: shake 0.5s;
+        }
+
+        .tool-btn.wrong {
+            background: #ffcdd2;
+            border-color: #f44336;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .tool-label {
+            font-size: 0.3em;
+            display: block;
+            margin-top: 5px;
+        }
 
         .control-btn {
             background: #667eea;
@@ -163,17 +238,33 @@
         }
 
         .instrument-btn {
-            padding: 15px 25px;
-            margin: 5px;
-            font-size: 1em;
-            border: none;
+            padding: 20px 30px;
+            margin: 8px;
+            font-size: 1.3em;
+            border: 3px solid #333;
             border-radius: 10px;
             cursor: pointer;
-            background: #ffecd2;
-            transition: transform 0.1s;
+            background: white;
+            transition: all 0.1s;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #666;
         }
 
-        .instrument-btn:active { transform: scale(0.95); }
+        .instrument-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #666;
+        }
+
+        .piano-key {
+            background: white;
+            border: 2px solid #000;
+        }
+
+        .drum-btn {
+            background: #ff6b6b;
+            color: white;
+            border-color: #c92a2a;
+        }
 
         .link-list {
             list-style: none;
@@ -221,7 +312,22 @@
             h1 { font-size: 1.8em; }
             .btn { font-size: 1.2em; padding: 30px 15px; }
             .modal-content { padding: 20px; }
+            .character { font-size: 3em; }
+            .tool-btn { font-size: 2em; }
         }
+
+        .patient-status {
+            font-size: 1.5em;
+            text-align: center;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .status-sick { background: #ffebee; color: #c62828; }
+        .status-treating { background: #fff3e0; color: #e65100; }
+        .status-happy { background: #e8f5e9; color: #2e7d32; }
     </style>
 </head>
 <body>
@@ -260,11 +366,31 @@
     <div id="doctorModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('doctor')">&times;</span>
-            <h2>👩‍⚕️ Doctor Game</h2>
-            <div id="doctorDialogue"></div>
-            <button class="control-btn" onclick="startDoctorGame()">Start Consultation</button>
-            <button class="control-btn" id="micBtn" onclick="startListening()" disabled>🎤 Speak Your Answer</button>
-            <p id="recognizedText" style="margin-top: 15px; font-style: italic;"></p>
+            <h2>👩‍⚕️ Doctor Game - Help the Patient!</h2>
+            
+            <div class="hospital-scene">
+                <div style="text-align: center;">
+                    <span id="patientEmoji" class="character">🤕</span>
+                    <span id="doctorEmoji" class="character" style="margin-left: 30px;">👨‍⚕️</span>
+                </div>
+                
+                <div id="patientStatus" class="patient-status status-sick">
+                    Patient needs help!
+                </div>
+                
+                <div id="doctorSpeech" class="speech-bubble">
+                    Click "Start New Patient" to help someone!
+                </div>
+            </div>
+
+            <div id="toolsSection" style="display: none;">
+                <h3 style="text-align: center; margin: 20px 0;">Pick the right tool to help!</h3>
+                <div class="tools-grid" id="toolsGrid"></div>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="control-btn" onclick="startNewPatient()">Start New Patient</button>
+            </div>
         </div>
     </div>
 
@@ -286,17 +412,15 @@
                 </div>
             </div>
 
-            <h3>🎹 Music Instruments</h3>
-            <div style="margin: 20px 0;">
-                <h4>Piano</h4>
-                <div id="piano"></div>
-                <h4 style="margin-top: 20px;">Drums</h4>
-                <div id="drums"></div>
-            </div>
+            <h3>🎹 Play Piano</h3>
+            <div id="piano" style="text-align: center;"></div>
+            
+            <h3 style="margin-top: 30px;">🥁 Play Drums</h3>
+            <div id="drums" style="text-align: center;"></div>
 
-            <h3>📹 Record Yourself</h3>
+            <h3 style="margin-top: 30px;">📹 Record Yourself</h3>
             <video id="videoPreview" width="100%" style="max-width: 500px; border-radius: 10px; display: none;"></video>
-            <div>
+            <div style="text-align: center;">
                 <button class="control-btn" onclick="startRecording()">🔴 Start Recording</button>
                 <button class="control-btn" onclick="stopRecording()">⏹️ Stop Recording</button>
                 <p id="recordingStatus"></p>
@@ -355,30 +479,33 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('game6')">&times;</span>
             <h2>🌍 Fun Facts</h2>
-            <div id="funFact" class="dialogue-box" style="font-size: 1.3em; text-align: center;"></div>
-            <button class="control-btn" onclick="generateFunFact()">Get New Fact</button>
-            <button class="control-btn" onclick="speakFunFact()">🔊 Hear Fact</button>
+            <div id="funFact" style="font-size: 1.3em; text-align: center; padding: 30px; background: #f0f0f0; border-radius: 15px;"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="control-btn" onclick="generateFunFact()">Get New Fact</button>
+                <button class="control-btn" onclick="speakFunFact()">🔊 Hear Fact</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // In-memory storage (replace with localStorage in production)
+        // Storage
         const storage = {
             mathScore: 0,
             recordings: []
         };
 
         let currentQuestion = {};
-        let recognition;
         let mediaRecorder;
         let recordedChunks = [];
         let currentFact = '';
+        let currentCase = null;
+        let audioContext;
 
-        // Speech Synthesis
+        // Speech
         function speak(text, callback) {
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
-            utterance.pitch = 1;
+            utterance.rate = 0.85;
+            utterance.pitch = 1.1;
             if (callback) utterance.onend = callback;
             speechSynthesis.speak(utterance);
         }
@@ -395,141 +522,286 @@
             speechSynthesis.cancel();
         }
 
-        // Doctor Game
+        // Doctor Game - Medical Cases
         const medicalCases = [
-            { problem: "The patient has a fever and cough", diagnosis: "Common cold", treatment: "Rest, drink lots of water, and take medicine to reduce fever" },
-            { problem: "The patient has diabetes", diagnosis: "High blood sugar", treatment: "Eat healthy food, exercise daily, and check blood sugar regularly" },
-            { problem: "The patient has a broken arm", diagnosis: "Bone fracture", treatment: "Put a cast on the arm and rest for 6 weeks" },
-            { problem: "The patient has a headache", diagnosis: "Tension headache", treatment: "Rest in a quiet room, drink water, and take pain medicine if needed" }
+            {
+                problem: "The patient has a cut on their arm and it's bleeding!",
+                patientEmoji: "🤕",
+                correctTool: "💉",
+                correctName: "Needle",
+                wrongResponse: "That's not right! We need something to clean and close the cut.",
+                correctResponse: "Yes! Good job! Now I will clean the cut and give medicine.",
+                treatment: "I'm cleaning the cut with medicine... Now putting a bandage... All done!",
+                happyEmoji: "😊"
+            },
+            {
+                problem: "The patient has a very high fever! Their body is too hot!",
+                patientEmoji: "🥵",
+                correctTool: "💊",
+                correctName: "Medicine",
+                wrongResponse: "No, that won't help with fever. Try again!",
+                correctResponse: "Perfect! This medicine will make the fever go away!",
+                treatment: "Here, drink this medicine with water... Good! Now rest and you'll feel better soon!",
+                happyEmoji: "😌"
+            },
+            {
+                problem: "The patient broke their leg! The bone is hurt inside!",
+                patientEmoji: "😣",
+                correctTool: "🩹",
+                correctName: "Bandage",
+                wrongResponse: "That won't fix a broken bone. What else can we use?",
+                correctResponse: "Great choice! We need to wrap the leg so it can heal!",
+                treatment: "I'm wrapping the leg carefully... Making it stable... Perfect! Don't walk for a few weeks!",
+                happyEmoji: "😊"
+            },
+            {
+                problem: "The patient's stomach hurts a lot! They ate too much candy!",
+                patientEmoji: "🤢",
+                correctTool: "💊",
+                correctName: "Medicine",
+                wrongResponse: "Hmm, that's not what we need for a tummy ache!",
+                correctResponse: "Exactly right! This will help the stomach feel better!",
+                treatment: "Take this medicine... Drink some water... No more candy today! Rest your tummy!",
+                happyEmoji: "😊"
+            },
+            {
+                problem: "The patient has a bad cough and can't breathe well!",
+                patientEmoji: "😷",
+                correctTool: "💉",
+                correctName: "Needle",
+                wrongResponse: "Not quite! We need something to help them breathe better.",
+                correctResponse: "Yes! I'll give them medicine to open up their breathing!",
+                treatment: "Giving the medicine shot... Take deep breaths... Inhale... Exhale... Much better!",
+                happyEmoji: "😊"
+            },
+            {
+                problem: "The patient hit their head and has a big bump!",
+                patientEmoji: "🤕",
+                correctTool: "🧊",
+                correctName: "Ice",
+                wrongResponse: "That won't help with the bump. What makes bumps smaller?",
+                correctResponse: "Smart! Ice will make the bump go down!",
+                treatment: "Putting ice on the bump... Hold it there... The cold makes swelling go away! All better!",
+                happyEmoji: "😊"
+            },
+            {
+                problem: "The patient's tooth hurts really bad!",
+                patientEmoji: "😖",
+                correctTool: "💊",
+                correctName: "Medicine",
+                wrongResponse: "That won't stop the tooth pain. Try another tool!",
+                correctResponse: "Good! This medicine stops tooth pain!",
+                treatment: "Here's medicine for the pain... Now let me check the tooth... We might need to see a dentist!",
+                happyEmoji: "😊"
+            },
+            {
+                problem: "The patient has an ear infection! Their ear hurts!",
+                patientEmoji: "😣",
+                correctTool: "💧",
+                correctName: "Drops",
+                wrongResponse: "That won't help the ear. What goes inside ears?",
+                correctResponse: "Perfect! Ear drops will fix the infection!",
+                treatment: "Putting drops in your ear... Stay still... Let it go deep inside... Done! No more pain soon!",
+                happyEmoji: "😊"
+            },
+            {
+                problem: "The patient's eyes are red and itchy from allergies!",
+                patientEmoji: "😖",
+                correctTool: "💧",
+                correctName: "Drops",
+                wrongResponse: "Not right for itchy eyes. What helps eyes feel better?",
+                correctResponse: "Excellent! Eye drops will stop the itching!",
+                treatment: "Look up please... Dropping medicine in your eyes... Blink blink... Much better now!",
+                happyEmoji: "😊"
+            },
+            {
+                problem: "The patient is very dehydrated! They need water in their body fast!",
+                patientEmoji: "😵",
+                correctTool: "💉",
+                correctName: "Needle",
+                wrongResponse: "That won't get water in fast enough. Try again!",
+                correctResponse: "Yes! We'll use an IV to give water through the needle!",
+                treatment: "Putting the needle in... Connecting the water bag... Water going in your veins... You'll feel better soon!",
+                happyEmoji: "😊"
+            },
+            {
+                problem: "The patient sprained their ankle playing! It's swollen!",
+                patientEmoji: "😣",
+                correctTool: "🧊",
+                correctName: "Ice",
+                wrongResponse: "That won't reduce the swelling. What makes swelling go down?",
+                correctResponse: "Right! Ice and rest will fix that ankle!",
+                treatment: "Icing the ankle... Wrapping it up... Keep it up high... No running for a week!",
+                happyEmoji: "😊"
+            },
+            {
+                problem: "The patient has a rash that's red and itchy all over!",
+                patientEmoji: "😖",
+                correctTool: "💊",
+                correctName: "Medicine",
+                wrongResponse: "That won't stop the itching. What helps rashes?",
+                correctResponse: "Good thinking! This cream medicine stops itching!",
+                treatment: "Putting cream on the rash... Rub it in gently... Don't scratch! It will go away in a few days!",
+                happyEmoji: "😊"
+            }
         ];
 
-        function startDoctorGame() {
-            const randomCase = medicalCases[Math.floor(Math.random() * medicalCases.length)];
-            const dialogue = document.getElementById('doctorDialogue');
+        const medicalTools = [
+            { emoji: "💉", name: "Needle" },
+            { emoji: "💊", name: "Medicine" },
+            { emoji: "🩹", name: "Bandage" },
+            { emoji: "🧊", name: "Ice" },
+            { emoji: "💧", name: "Drops" },
+            { emoji: "🌡️", name: "Thermometer" }
+        ];
+
+        function startNewPatient() {
+            currentCase = medicalCases[Math.floor(Math.random() * medicalCases.length)];
             
-            dialogue.innerHTML = `<div class="dialogue-box patient">👤 Patient: ${randomCase.problem}</div>`;
+            document.getElementById('patientEmoji').textContent = currentCase.patientEmoji;
+            document.getElementById('patientStatus').textContent = 'Patient needs help!';
+            document.getElementById('patientStatus').className = 'patient-status status-sick';
+            document.getElementById('doctorSpeech').textContent = currentCase.problem;
             
-            speak(randomCase.problem, () => {
+            speak(currentCase.problem, () => {
                 setTimeout(() => {
-                    dialogue.innerHTML += `<div class="dialogue-box doctor">👨‍⚕️ Doctor: This patient has ${randomCase.diagnosis}. ${randomCase.treatment}.</div>`;
-                    speak(`This patient has ${randomCase.diagnosis}. ${randomCase.treatment}.`, () => {
-                        document.getElementById('micBtn').disabled = false;
-                    });
-                }, 1000);
+                    const askForTool = `Quick! What tool should I use? Pick one!`;
+                    document.getElementById('doctorSpeech').textContent = askForTool;
+                    speak(askForTool);
+                    showTools();
+                }, 1500);
             });
         }
 
-        function startListening() {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert('Speech recognition not supported in this browser');
-                return;
-            }
-
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.lang = 'en-US';
-            recognition.continuous = false;
-
-            recognition.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                document.getElementById('recognizedText').textContent = `You said: "${text}"`;
-                speak(`You said: ${text}. Great job communicating!`);
-            };
-
-            recognition.start();
+        function showTools() {
+            document.getElementById('toolsSection').style.display = 'block';
+            const grid = document.getElementById('toolsGrid');
+            grid.innerHTML = '';
+            
+            medicalTools.forEach(tool => {
+                const btn = document.createElement('button');
+                btn.className = 'tool-btn';
+                btn.innerHTML = tool.emoji + '<span class="tool-label">' + tool.name + '</span>';
+                btn.onclick = () => selectTool(tool.emoji, tool.name);
+                grid.appendChild(btn);
+            });
         }
 
-        // Math Trainer
-        function generateQuestion() {
-            const types = ['addition', 'multiplication', 'algebra'];
-            const type = types[Math.floor(Math.random() * types.length)];
+        function selectTool(emoji, name) {
+            if (!currentCase) return;
             
-            let question, answer;
+            const buttons = document.querySelectorAll('.tool-btn');
+            buttons.forEach(btn => btn.style.pointerEvents = 'none');
             
-            if (type === 'addition') {
-                const a = Math.floor(Math.random() * 50) + 1;
-                const b = Math.floor(Math.random() * 50) + 1;
-                question = `${a} + ${b}`;
-                answer = a + b;
-            } else if (type === 'multiplication') {
-                const a = Math.floor(Math.random() * 12) + 1;
-                const b = Math.floor(Math.random() * 12) + 1;
-                question = `${a} × ${b}`;
-                answer = a * b;
+            if (emoji === currentCase.correctTool) {
+                event.target.classList.add('correct');
+                document.getElementById('patientStatus').textContent = 'Treating patient...';
+                document.getElementById('patientStatus').className = 'patient-status status-treating';
+                document.getElementById('doctorSpeech').textContent = currentCase.correctResponse;
+                
+                speak(currentCase.correctResponse, () => {
+                    setTimeout(() => {
+                        document.getElementById('doctorSpeech').textContent = currentCase.treatment;
+                        speak(currentCase.treatment, () => {
+                            setTimeout(() => {
+                                document.getElementById('patientEmoji').textContent = currentCase.happyEmoji;
+                                document.getElementById('patientStatus').textContent = 'Patient is all better! 🎉';
+                                document.getElementById('patientStatus').className = 'patient-status status-happy';
+                                const happy = "The patient is happy and healthy now! Great job, doctor!";
+                                document.getElementById('doctorSpeech').textContent = happy;
+                                speak(happy);
+                                document.getElementById('toolsSection').style.display = 'none';
+                            }, 2000);
+                        });
+                    }, 1500);
+                });
             } else {
-                const x = Math.floor(Math.random() * 10) + 1;
-                const b = Math.floor(Math.random() * 20) + 1;
-                const c = x + b;
-                question = `x + ${b} = ${c}. What is x?`;
-                answer = x;
-            }
-            
-            currentQuestion = { question, answer };
-            document.getElementById('mathQuestion').textContent = question;
-            document.getElementById('mathAnswer').value = '';
-            document.getElementById('mathFeedback').innerHTML = '';
-        }
-
-        function checkAnswer() {
-            const userAnswer = parseInt(document.getElementById('mathAnswer').value);
-            const feedback = document.getElementById('mathFeedback');
-            
-            if (userAnswer === currentQuestion.answer) {
-                storage.mathScore++;
-                document.getElementById('mathScore').textContent = storage.mathScore;
-                feedback.innerHTML = '✅ Correct! Great job!';
-                feedback.style.color = 'green';
-                speak('Correct! Great job!');
-            } else {
-                feedback.innerHTML = `❌ Not quite. Let me explain...`;
-                feedback.style.color = 'red';
-                explainAnswer();
+                event.target.classList.add('wrong');
+                document.getElementById('doctorSpeech').textContent = currentCase.wrongResponse;
+                speak(currentCase.wrongResponse, () => {
+                    setTimeout(() => {
+                        event.target.classList.remove('wrong');
+                        buttons.forEach(btn => btn.style.pointerEvents = 'auto');
+                    }, 2000);
+                });
             }
         }
 
-        function explainAnswer() {
-            const q = currentQuestion.question;
-            let explanation = '';
-            
-            if (q.includes('+')) {
-                const parts = q.split('+').map(p => parseInt(p.trim()));
-                explanation = `When we add ${parts[0]} and ${parts[1]}, we get ${currentQuestion.answer}. Try counting: ${parts[0]}... `;
-                for (let i = 1; i <= parts[1]; i++) {
-                    explanation += `${parts[0] + i}... `;
-                }
-            } else if (q.includes('×')) {
-                const parts = q.split('×').map(p => parseInt(p.trim()));
-                explanation = `${parts[0]} times ${parts[1]} means adding ${parts[0]} together ${parts[1]} times, which equals ${currentQuestion.answer}.`;
-            } else {
-                explanation = `The answer is ${currentQuestion.answer}. Think about what number plus the given number equals the result!`;
+        // Audio Context for Instruments
+        function getAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
-            
-            speak(explanation);
-            document.getElementById('mathFeedback').innerHTML += `<br><br>${explanation}`;
+            return audioContext;
         }
 
-        function speakQuestion() {
-            speak(currentQuestion.question);
-        }
-
-        // YouTube Room - Instruments
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-        function playTone(frequency, duration = 0.3) {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+        function playPiano(frequency) {
+            const ctx = getAudioContext();
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
             
             oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+            gainNode.connect(ctx.destination);
             
+            oscillator.type = 'triangle';
             oscillator.frequency.value = frequency;
-            oscillator.type = 'sine';
             
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.0);
             
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + duration);
+            oscillator.start(ctx.currentTime);
+            oscillator.stop(ctx.currentTime + 1.0);
+        }
+
+        function playDrum(type) {
+            const ctx = getAudioContext();
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            const filter = ctx.createBiquadFilter();
+            
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            if (type === 'kick') {
+                oscillator.frequency.setValueAtTime(150, ctx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(1, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.5);
+            } else if (type === 'snare') {
+                const noise = ctx.createBufferSource();
+                const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.2, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < buffer.length; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                noise.buffer = buffer;
+                noise.connect(filter);
+                filter.type = 'highpass';
+                filter.frequency.value = 1000;
+                gainNode.gain.setValueAtTime(0.7, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                noise.start(ctx.currentTime);
+                noise.stop(ctx.currentTime + 0.2);
+            } else if (type === 'hihat') {
+                const noise = ctx.createBufferSource();
+                const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.1, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < buffer.length; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                noise.buffer = buffer;
+                noise.connect(filter);
+                filter.type = 'highpass';
+                filter.frequency.value = 7000;
+                gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                noise.start(ctx.currentTime);
+                noise.stop(ctx.currentTime + 0.1);
+            }
         }
 
         function initInstruments() {
@@ -540,32 +812,32 @@
                 { note: 'F', freq: 349.23 },
                 { note: 'G', freq: 392.00 },
                 { note: 'A', freq: 440.00 },
-                { note: 'B', freq: 493.88 }
-            ];
-
-            const drums = [
-                { name: '🥁 Kick', freq: 60 },
-                { name: '🎵 Snare', freq: 200 },
-                { name: '🔔 Hi-Hat', freq: 400 }
+                { note: 'B', freq: 493.88 },
+                { note: 'C2', freq: 523.25 }
             ];
 
             const pianoDiv = document.getElementById('piano');
             pianoDiv.innerHTML = '';
             pianoNotes.forEach(n => {
                 const btn = document.createElement('button');
-                btn.className = 'instrument-btn';
+                btn.className = 'instrument-btn piano-key';
                 btn.textContent = n.note;
-                btn.onclick = () => playTone(n.freq);
+                btn.onclick = () => playPiano(n.freq);
                 pianoDiv.appendChild(btn);
             });
 
             const drumsDiv = document.getElementById('drums');
             drumsDiv.innerHTML = '';
+            const drums = [
+                { name: 'KICK 🥁', type: 'kick' },
+                { name: 'SNARE 🎵', type: 'snare' },
+                { name: 'HI-HAT 🔔', type: 'hihat' }
+            ];
             drums.forEach(d => {
                 const btn = document.createElement('button');
-                btn.className = 'instrument-btn';
+                btn.className = 'instrument-btn drum-btn';
                 btn.textContent = d.name;
-                btn.onclick = () => playTone(d.freq, 0.15);
+                btn.onclick = () => playDrum(d.type);
                 drumsDiv.appendChild(btn);
             });
         }
@@ -608,16 +880,91 @@
             }
         }
 
+        // Math Trainer
+        function generateQuestion() {
+            const types = ['addition', 'multiplication', 'algebra'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            
+            let question, answer;
+            
+            if (type === 'addition') {
+                const a = Math.floor(Math.random() * 50) + 1;
+                const b = Math.floor(Math.random() * 50) + 1;
+                question = `${a} plus ${b}`;
+                answer = a + b;
+            } else if (type === 'multiplication') {
+                const a = Math.floor(Math.random() * 12) + 1;
+                const b = Math.floor(Math.random() * 12) + 1;
+                question = `${a} times ${b}`;
+                answer = a * b;
+            } else {
+                const x = Math.floor(Math.random() * 10) + 1;
+                const b = Math.floor(Math.random() * 20) + 1;
+                const c = x + b;
+                question = `x plus ${b} equals ${c}. What is x?`;
+                answer = x;
+            }
+            
+            currentQuestion = { question, answer };
+            document.getElementById('mathQuestion').textContent = question;
+            document.getElementById('mathAnswer').value = '';
+            document.getElementById('mathFeedback').innerHTML = '';
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('mathAnswer').value);
+            const feedback = document.getElementById('mathFeedback');
+            
+            if (userAnswer === currentQuestion.answer) {
+                storage.mathScore++;
+                document.getElementById('mathScore').textContent = storage.mathScore;
+                feedback.innerHTML = '✅ Correct! Great job!';
+                feedback.style.color = 'green';
+                speak('Correct! Great job!');
+            } else {
+                feedback.innerHTML = `❌ Not quite. The answer is ${currentQuestion.answer}. Let me explain...`;
+                feedback.style.color = 'red';
+                explainAnswer();
+            }
+        }
+
+        function explainAnswer() {
+            const q = currentQuestion.question;
+            let explanation = '';
+            
+            if (q.includes('plus')) {
+                const parts = q.match(/\d+/g).map(Number);
+                explanation = `When we add ${parts[0]} and ${parts[1]}, we start at ${parts[0]} and count up ${parts[1]} times. The answer is ${currentQuestion.answer}.`;
+            } else if (q.includes('times')) {
+                const parts = q.match(/\d+/g).map(Number);
+                explanation = `${parts[0]} times ${parts[1]} means we have ${parts[1]} groups of ${parts[0]}. That equals ${currentQuestion.answer}.`;
+            } else {
+                explanation = `The answer is ${currentQuestion.answer}. We need to find what number plus the other number gives us the total!`;
+            }
+            
+            speak(explanation);
+            document.getElementById('mathFeedback').innerHTML += `<br><br>${explanation}`;
+        }
+
+        function speakQuestion() {
+            speak(currentQuestion.question);
+        }
+
         // Fun Facts
         const funFacts = [
-            "Octopuses have three hearts! Two pump blood to the gills, while one pumps it to the rest of the body.",
-            "Honey never spoils! Archaeologists have found 3000-year-old honey in Egyptian tombs that's still edible.",
-            "A group of flamingos is called a 'flamboyance'!",
-            "Bananas are berries, but strawberries aren't!",
-            "A day on Venus is longer than a year on Venus!",
-            "There are more stars in the universe than grains of sand on all of Earth's beaches.",
-            "Butterflies can taste with their feet!",
-            "A bolt of lightning is five times hotter than the surface of the sun!"
+            "Octopuses have three hearts! Two hearts pump blood to the gills, and one heart pumps blood to the rest of the body!",
+            "Honey never spoils! People found 3000-year-old honey in Egyptian tombs and it was still good to eat!",
+            "A group of flamingos is called a flamboyance! That's a fancy word that means very colorful and showy!",
+            "Bananas are berries, but strawberries are not berries! Isn't that surprising?",
+            "A day on Venus is longer than a year on Venus! Venus spins very slowly but moves around the sun faster!",
+            "There are more stars in the universe than grains of sand on all of Earth's beaches! That's a huge number!",
+            "Butterflies taste with their feet! They stand on their food to know if it's good to eat!",
+            "A lightning bolt is five times hotter than the surface of the sun! Lightning is super hot!",
+            "Sharks have been around longer than trees! Sharks are more than 400 million years old!",
+            "A group of owls is called a parliament! That sounds very wise and important!",
+            "Cows have best friends! They get stressed when they are separated from their best friend!",
+            "The heart of a shrimp is in its head! How weird is that?",
+            "Penguins propose to each other with pebbles! A male penguin gives a special pebble to the female penguin he loves!"
         ];
 
         function generateFunFact() {
