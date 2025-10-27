@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Learning Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: white;
+            border: none;
+            border-radius: 20px;
+            padding: 40px 20px;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .btn-doctor { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .btn-youtube { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .btn-math { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .btn-assistant { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .btn-game5 { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+        .btn-game6 { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 20px auto;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 800px;
+            position: relative;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 2em;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close:hover { color: #000; }
+
+        .dialogue-box {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            font-size: 1.2em;
+        }
+
+        .patient { background: #ffe5e5; border-left: 5px solid #ff6b6b; }
+        .doctor { background: #e5f5ff; border-left: 5px solid #4facfe; }
+
+        .control-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+
+        .control-btn:hover { background: #5568d3; }
+        .control-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .video-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .instrument-btn {
+            padding: 15px 25px;
+            margin: 5px;
+            font-size: 1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #ffecd2;
+            transition: transform 0.1s;
+        }
+
+        .instrument-btn:active { transform: scale(0.95); }
+
+        .link-list {
+            list-style: none;
+        }
+
+        .link-list li {
+            margin: 15px 0;
+        }
+
+        .link-list a {
+            display: block;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .link-list a:hover { background: #e0e0e0; }
+
+        .score {
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .recording-indicator {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            background: red;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .btn { font-size: 1.2em; padding: 30px 15px; }
+            .modal-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌟 Interactive Learning Hub 🌟</h1>
+        
+        <div class="grid">
+            <button class="btn btn-doctor" onclick="openModal('doctor')">
+                <span style="font-size: 2em;">👩‍⚕️</span>
+                <span>Doctor Game</span>
+            </button>
+            <button class="btn btn-youtube" onclick="openModal('youtube')">
+                <span style="font-size: 2em;">📺</span>
+                <span>YouTube Room</span>
+            </button>
+            <button class="btn btn-math" onclick="openModal('math')">
+                <span style="font-size: 2em;">➕✖️</span>
+                <span>Math Trainer</span>
+            </button>
+            <button class="btn btn-assistant" onclick="openModal('assistant')">
+                <span style="font-size: 2em;">🤖</span>
+                <span>Assistant</span>
+            </button>
+            <button class="btn btn-game5" onclick="openModal('game5')">
+                <span style="font-size: 2em;">🎮</span>
+                <span>Game 5</span>
+            </button>
+            <button class="btn btn-game6" onclick="openModal('game6')">
+                <span style="font-size: 2em;">🌍</span>
+                <span>Fun Facts</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Doctor Modal -->
+    <div id="doctorModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('doctor')">&times;</span>
+            <h2>👩‍⚕️ Doctor Game</h2>
+            <div id="doctorDialogue"></div>
+            <button class="control-btn" onclick="startDoctorGame()">Start Consultation</button>
+            <button class="control-btn" id="micBtn" onclick="startListening()" disabled>🎤 Speak Your Answer</button>
+            <p id="recognizedText" style="margin-top: 15px; font-style: italic;"></p>
+        </div>
+    </div>
+
+    <!-- YouTube Modal -->
+    <div id="youtubeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('youtube')">&times;</span>
+            <h2>📺 YouTube Room</h2>
+            
+            <div class="video-container">
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+                </div>
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/kJQP7kiw5Fk" allowfullscreen></iframe>
+                </div>
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/9bZkp7q19f0" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <h3>🎹 Music Instruments</h3>
+            <div style="margin: 20px 0;">
+                <h4>Piano</h4>
+                <div id="piano"></div>
+                <h4 style="margin-top: 20px;">Drums</h4>
+                <div id="drums"></div>
+            </div>
+
+            <h3>📹 Record Yourself</h3>
+            <video id="videoPreview" width="100%" style="max-width: 500px; border-radius: 10px; display: none;"></video>
+            <div>
+                <button class="control-btn" onclick="startRecording()">🔴 Start Recording</button>
+                <button class="control-btn" onclick="stopRecording()">⏹️ Stop Recording</button>
+                <p id="recordingStatus"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Math Modal -->
+    <div id="mathModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('math')">&times;</span>
+            <h2>➕✖️ Math Trainer</h2>
+            <div class="score">Score: <span id="mathScore">0</span></div>
+            <div id="mathQuestion" style="font-size: 1.5em; margin: 20px 0;"></div>
+            <input type="number" id="mathAnswer" placeholder="Your answer">
+            <div>
+                <button class="control-btn" onclick="generateQuestion()">New Question</button>
+                <button class="control-btn" onclick="checkAnswer()">Check Answer</button>
+                <button class="control-btn" onclick="speakQuestion()">🔊 Hear Question</button>
+            </div>
+            <div id="mathFeedback" style="margin-top: 20px; font-size: 1.2em;"></div>
+        </div>
+    </div>
+
+    <!-- Assistant Modal -->
+    <div id="assistantModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('assistant')">&times;</span>
+            <h2>🤖 Assistant Links</h2>
+            <ul class="link-list">
+                <li><a href="https://www.google.com" target="_blank">🔍 Google Search</a></li>
+                <li><a href="https://www.wikipedia.org" target="_blank">📚 Wikipedia</a></li>
+                <li><a href="https://www.khanacademy.org" target="_blank">📖 Khan Academy</a></li>
+                <li><a href="https://www.duolingo.com" target="_blank">🗣️ Duolingo</a></li>
+                <li><a href="https://www.codecademy.com" target="_blank">💻 Codecademy</a></li>
+                <li><a href="https://www.nasa.gov/kidsclub" target="_blank">🚀 NASA Kids Club</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Game 5 Modal -->
+    <div id="game5Modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('game5')">&times;</span>
+            <h2>🎮 Game 5</h2>
+            <div style="text-align: center; padding: 50px;">
+                <h1 style="font-size: 3em;">🚧</h1>
+                <h3>Coming Soon!</h3>
+                <p style="margin-top: 20px; font-size: 1.2em;">Exciting games are on the way!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game 6 Modal -->
+    <div id="game6Modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('game6')">&times;</span>
+            <h2>🌍 Fun Facts</h2>
+            <div id="funFact" class="dialogue-box" style="font-size: 1.3em; text-align: center;"></div>
+            <button class="control-btn" onclick="generateFunFact()">Get New Fact</button>
+            <button class="control-btn" onclick="speakFunFact()">🔊 Hear Fact</button>
+        </div>
+    </div>
+
+    <script>
+        // In-memory storage (replace with localStorage in production)
+        const storage = {
+            mathScore: 0,
+            recordings: []
+        };
+
+        let currentQuestion = {};
+        let recognition;
+        let mediaRecorder;
+        let recordedChunks = [];
+        let currentFact = '';
+
+        // Speech Synthesis
+        function speak(text, callback) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            if (callback) utterance.onend = callback;
+            speechSynthesis.speak(utterance);
+        }
+
+        // Modal Controls
+        function openModal(type) {
+            document.getElementById(type + 'Modal').style.display = 'block';
+            if (type === 'youtube') initInstruments();
+            if (type === 'game6') generateFunFact();
+        }
+
+        function closeModal(type) {
+            document.getElementById(type + 'Modal').style.display = 'none';
+            speechSynthesis.cancel();
+        }
+
+        // Doctor Game
+        const medicalCases = [
+            { problem: "The patient has a fever and cough", diagnosis: "Common cold", treatment: "Rest, drink lots of water, and take medicine to reduce fever" },
+            { problem: "The patient has diabetes", diagnosis: "High blood sugar", treatment: "Eat healthy food, exercise daily, and check blood sugar regularly" },
+            { problem: "The patient has a broken arm", diagnosis: "Bone fracture", treatment: "Put a cast on the arm and rest for 6 weeks" },
+            { problem: "The patient has a headache", diagnosis: "Tension headache", treatment: "Rest in a quiet room, drink water, and take pain medicine if needed" }
+        ];
+
+        function startDoctorGame() {
+            const randomCase = medicalCases[Math.floor(Math.random() * medicalCases.length)];
+            const dialogue = document.getElementById('doctorDialogue');
+            
+            dialogue.innerHTML = `<div class="dialogue-box patient">👤 Patient: ${randomCase.problem}</div>`;
+            
+            speak(randomCase.problem, () => {
+                setTimeout(() => {
+                    dialogue.innerHTML += `<div class="dialogue-box doctor">👨‍⚕️ Doctor: This patient has ${randomCase.diagnosis}. ${randomCase.treatment}.</div>`;
+                    speak(`This patient has ${randomCase.diagnosis}. ${randomCase.treatment}.`, () => {
+                        document.getElementById('micBtn').disabled = false;
+                    });
+                }, 1000);
+            });
+        }
+
+        function startListening() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Speech recognition not supported in this browser');
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = false;
+
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                document.getElementById('recognizedText').textContent = `You said: "${text}"`;
+                speak(`You said: ${text}. Great job communicating!`);
+            };
+
+            recognition.start();
+        }
+
+        // Math Trainer
+        function generateQuestion() {
+            const types = ['addition', 'multiplication', 'algebra'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            
+            let question, answer;
+            
+            if (type === 'addition') {
+                const a = Math.floor(Math.random() * 50) + 1;
+                const b = Math.floor(Math.random() * 50) + 1;
+                question = `${a} + ${b}`;
+                answer = a + b;
+            } else if (type === 'multiplication') {
+                const a = Math.floor(Math.random() * 12) + 1;
+                const b = Math.floor(Math.random() * 12) + 1;
+                question = `${a} × ${b}`;
+                answer = a * b;
+            } else {
+                const x = Math.floor(Math.random() * 10) + 1;
+                const b = Math.floor(Math.random() * 20) + 1;
+                const c = x + b;
+                question = `x + ${b} = ${c}. What is x?`;
+                answer = x;
+            }
+            
+            currentQuestion = { question, answer };
+            document.getElementById('mathQuestion').textContent = question;
+            document.getElementById('mathAnswer').value = '';
+            document.getElementById('mathFeedback').innerHTML = '';
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('mathAnswer').value);
+            const feedback = document.getElementById('mathFeedback');
+            
+            if (userAnswer === currentQuestion.answer) {
+                storage.mathScore++;
+                document.getElementById('mathScore').textContent = storage.mathScore;
+                feedback.innerHTML = '✅ Correct! Great job!';
+                feedback.style.color = 'green';
+                speak('Correct! Great job!');
+            } else {
+                feedback.innerHTML = `❌ Not quite. Let me explain...`;
+                feedback.style.color = 'red';
+                explainAnswer();
+            }
+        }
+
+        function explainAnswer() {
+            const q = currentQuestion.question;
+            let explanation = '';
+            
+            if (q.includes('+')) {
+                const parts = q.split('+').map(p => parseInt(p.trim()));
+                explanation = `When we add ${parts[0]} and ${parts[1]}, we get ${currentQuestion.answer}. Try counting: ${parts[0]}... `;
+                for (let i = 1; i <= parts[1]; i++) {
+                    explanation += `${parts[0] + i}... `;
+                }
+            } else if (q.includes('×')) {
+                const parts = q.split('×').map(p => parseInt(p.trim()));
+                explanation = `${parts[0]} times ${parts[1]} means adding ${parts[0]} together ${parts[1]} times, which equals ${currentQuestion.answer}.`;
+            } else {
+                explanation = `The answer is ${currentQuestion.answer}. Think about what number plus the given number equals the result!`;
+            }
+            
+            speak(explanation);
+            document.getElementById('mathFeedback').innerHTML += `<br><br>${explanation}`;
+        }
+
+        function speakQuestion() {
+            speak(currentQuestion.question);
+        }
+
+        // YouTube Room - Instruments
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playTone(frequency, duration = 0.3) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        function initInstruments() {
+            const pianoNotes = [
+                { note: 'C', freq: 261.63 },
+                { note: 'D', freq: 293.66 },
+                { note: 'E', freq: 329.63 },
+                { note: 'F', freq: 349.23 },
+                { note: 'G', freq: 392.00 },
+                { note: 'A', freq: 440.00 },
+                { note: 'B', freq: 493.88 }
+            ];
+
+            const drums = [
+                { name: '🥁 Kick', freq: 60 },
+                { name: '🎵 Snare', freq: 200 },
+                { name: '🔔 Hi-Hat', freq: 400 }
+            ];
+
+            const pianoDiv = document.getElementById('piano');
+            pianoDiv.innerHTML = '';
+            pianoNotes.forEach(n => {
+                const btn = document.createElement('button');
+                btn.className = 'instrument-btn';
+                btn.textContent = n.note;
+                btn.onclick = () => playTone(n.freq);
+                pianoDiv.appendChild(btn);
+            });
+
+            const drumsDiv = document.getElementById('drums');
+            drumsDiv.innerHTML = '';
+            drums.forEach(d => {
+                const btn = document.createElement('button');
+                btn.className = 'instrument-btn';
+                btn.textContent = d.name;
+                btn.onclick = () => playTone(d.freq, 0.15);
+                drumsDiv.appendChild(btn);
+            });
+        }
+
+        // Recording
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const video = document.getElementById('videoPreview');
+                video.srcObject = stream;
+                video.style.display = 'block';
+                video.play();
+
+                recordedChunks = [];
+                mediaRecorder = new MediaRecorder(stream);
+                
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) recordedChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    storage.recordings.push({ url, date: new Date().toISOString() });
+                    document.getElementById('recordingStatus').textContent = '✅ Recording saved!';
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                document.getElementById('recordingStatus').innerHTML = 'Recording<span class="recording-indicator"></span>';
+            } catch (err) {
+                alert('Could not access camera: ' + err.message);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                document.getElementById('videoPreview').style.display = 'none';
+            }
+        }
+
+        // Fun Facts
+        const funFacts = [
+            "Octopuses have three hearts! Two pump blood to the gills, while one pumps it to the rest of the body.",
+            "Honey never spoils! Archaeologists have found 3000-year-old honey in Egyptian tombs that's still edible.",
+            "A group of flamingos is called a 'flamboyance'!",
+            "Bananas are berries, but strawberries aren't!",
+            "A day on Venus is longer than a year on Venus!",
+            "There are more stars in the universe than grains of sand on all of Earth's beaches.",
+            "Butterflies can taste with their feet!",
+            "A bolt of lightning is five times hotter than the surface of the sun!"
+        ];
+
+        function generateFunFact() {
+            currentFact = funFacts[Math.floor(Math.random() * funFacts.length)];
+            document.getElementById('funFact').textContent = currentFact;
+        }
+
+        function speakFunFact() {
+            speak(currentFact);
+        }
+
+        // Initialize
+        generateQuestion();
+    </script>
+</body>
+</html>
