@@ -42,6 +42,36 @@
             font-size: 18px;
         }
 
+        #hungerBar {
+            width: 200px;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+            border: 2px solid #666;
+        }
+
+        #hungerFill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            transition: width 0.3s, background 0.3s;
+        }
+
+        #hungerFill.low {
+            background: linear-gradient(90deg, #FF9800, #FFC107);
+        }
+
+        #hungerFill.critical {
+            background: linear-gradient(90deg, #F44336, #E91E63);
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
         #minimap {
             position: fixed;
             top: 10px;
@@ -87,10 +117,6 @@
             50% { transform: scale(1.05); }
         }
 
-        #actionBtn:hover {
-            background: #45a049;
-        }
-
         .modal {
             position: fixed;
             top: 50%;
@@ -112,7 +138,7 @@
             color: #333;
         }
 
-        .shop-item, .patient-item {
+        .shop-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -121,17 +147,13 @@
             margin-bottom: 10px;
         }
 
-        .shop-item button, .patient-item button {
+        .shop-item button {
             background: #4CAF50;
             color: white;
             border: none;
             padding: 8px 15px;
             border-radius: 5px;
             cursor: pointer;
-        }
-
-        .shop-item button:hover, .patient-item button:hover {
-            background: #45a049;
         }
 
         .close-btn {
@@ -145,18 +167,29 @@
             cursor: pointer;
         }
 
-        #hospitalInterior {
+        #hospitalInterior, #churchInterior, #homeInterior {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #e8f5e9;
             display: none;
             z-index: 150;
         }
 
-        #hospitalUI {
+        #hospitalInterior {
+            background: #e8f5e9;
+        }
+
+        #churchInterior {
+            background: linear-gradient(180deg, #1a237e, #3949ab);
+        }
+
+        #homeInterior {
+            background: linear-gradient(180deg, #ffeaa7, #fdcb6e);
+        }
+
+        .interior-ui {
             position: absolute;
             top: 20px;
             left: 20px;
@@ -166,12 +199,7 @@
             border: 2px solid #4CAF50;
         }
 
-        #hospitalUI h2 {
-            color: #2196F3;
-            margin-bottom: 10px;
-        }
-
-        #exitHospital {
+        .exit-btn {
             position: absolute;
             top: 20px;
             right: 20px;
@@ -206,16 +234,11 @@
 
         .patient-bed:hover {
             transform: scale(1.05);
-            border-color: #4CAF50;
         }
 
         .patient-bed.treated {
             border-color: #4CAF50;
             background: #c8e6c9;
-        }
-
-        .patient-emoji {
-            font-size: 48px;
         }
 
         #treatmentPanel {
@@ -232,11 +255,6 @@
             max-width: 600px;
         }
 
-        #treatmentPanel h2 {
-            color: #2196F3;
-            margin-bottom: 20px;
-        }
-
         .tool-option {
             padding: 15px;
             margin: 10px 0;
@@ -244,7 +262,6 @@
             border-radius: 10px;
             cursor: pointer;
             border: 2px solid transparent;
-            transition: all 0.2s;
         }
 
         .tool-option:hover {
@@ -260,6 +277,61 @@
         .tool-option.wrong {
             background: #ffcdd2;
             border-color: #f44336;
+        }
+
+        #churchContent {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            max-width: 700px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+        }
+
+        #bibleVerse {
+            font-size: 24px;
+            font-style: italic;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        #verseReference {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        #homeContent {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 900px;
+        }
+
+        .room-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 3px solid #ff6b6b;
+        }
+
+        .character {
+            display: inline-block;
+            font-size: 80px;
+            margin: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .character:hover {
+            transform: scale(1.1);
         }
 
         #mobileControls {
@@ -289,10 +361,6 @@
             justify-content: center;
         }
 
-        .control-btn:active {
-            background: rgba(0, 0, 0, 0.8);
-        }
-
         @media (max-width: 768px) {
             #mobileControls {
                 display: block;
@@ -310,9 +378,12 @@
     <div id="ui">
         <div>Dr. <span id="playerIcon">👨‍⚕️</span></div>
         <div id="money">Money: $100</div>
+        <div>Hunger: <span id="hungerText">100%</span></div>
+        <div id="hungerBar">
+            <div id="hungerFill" style="width: 100%"></div>
+        </div>
         <div>Patients Treated: <span id="patientCount">0</span></div>
         <div>Speed: <span id="speed">Walking</span></div>
-        <div>Inventory: <span id="inventory">Empty</span></div>
     </div>
 
     <div id="controls">
@@ -326,31 +397,35 @@
     <div id="shop" class="modal">
         <h2>🏪 Supermarket</h2>
         <div class="shop-item">
-            <span>🍕 Pizza - $10</span>
-            <button onclick="buyItem('🍕', 10)">Buy</button>
+            <span>🍕 Pizza - $10 (+30 hunger)</span>
+            <button onclick="buyFood('🍕 Pizza', 10, 30)">Buy</button>
         </div>
         <div class="shop-item">
-            <span>🍔 Burger - $8</span>
-            <button onclick="buyItem('🍔', 8)">Buy</button>
+            <span>🍔 Burger - $8 (+25 hunger)</span>
+            <button onclick="buyFood('🍔 Burger', 8, 25)">Buy</button>
         </div>
         <div class="shop-item">
-            <span>🥤 Soda - $3</span>
-            <button onclick="buyItem('🥤', 3)">Buy</button>
+            <span>🥤 Soda - $3 (+10 hunger)</span>
+            <button onclick="buyFood('🥤 Soda', 3, 10)">Buy</button>
         </div>
         <div class="shop-item">
-            <span>🍎 Apple - $2</span>
-            <button onclick="buyItem('🍎', 2)">Buy</button>
+            <span>🍎 Apple - $2 (+15 hunger)</span>
+            <button onclick="buyFood('🍎 Apple', 2, 15)">Buy</button>
+        </div>
+        <div class="shop-item">
+            <span>🍗 Chicken - $12 (+40 hunger)</span>
+            <button onclick="buyFood('🍗 Chicken', 12, 40)">Buy</button>
         </div>
         <button class="close-btn" onclick="closeShop()">Close</button>
     </div>
 
     <div id="hospitalInterior">
-        <div id="hospitalUI">
+        <div class="interior-ui">
             <h2>🏥 City Hospital - Doctor's Shift</h2>
             <p>Click on patients to diagnose and treat them!</p>
             <p>Earn $50 for each patient treated correctly.</p>
         </div>
-        <button id="exitHospital" onclick="exitHospital()">Exit Hospital</button>
+        <button class="exit-btn" onclick="exitHospital()">Exit Hospital</button>
         <div id="patientList"></div>
     </div>
 
@@ -360,6 +435,45 @@
         <h3>Select the correct medical tool:</h3>
         <div id="toolOptions"></div>
         <button class="close-btn" onclick="closeTreatment()">Cancel</button>
+    </div>
+
+    <div id="churchInterior">
+        <div id="churchContent">
+            <h1 style="font-size: 48px; margin-bottom: 30px;">⛪ Church</h1>
+            <div id="bibleVerse"></div>
+            <div id="verseReference"></div>
+            <button style="margin-top: 30px; padding: 15px 30px; font-size: 18px; border-radius: 10px; border: none; background: #FFD700; cursor: pointer;" onclick="getNewVerse()">
+                📖 New Verse
+            </button>
+        </div>
+        <button class="exit-btn" onclick="exitChurch()">Exit Church</button>
+    </div>
+
+    <div id="homeInterior">
+        <div id="homeContent">
+            <div class="room-section">
+                <h2>🏠 Your Home - Living Room</h2>
+                <div style="text-align: center;">
+                    <div class="character" onclick="talkToDad()">
+                        👨 Dad
+                        <div style="font-size: 14px;">Relaxing on couch</div>
+                    </div>
+                </div>
+            </div>
+            <div class="room-section">
+                <h2>🍳 Kitchen</h2>
+                <div style="text-align: center;">
+                    <div class="character" onclick="talkToMom()">
+                        👩‍🍳 Mom
+                        <div style="font-size: 14px;">Cooking delicious food</div>
+                    </div>
+                    <button style="margin: 20px; padding: 15px 30px; font-size: 18px; border-radius: 10px; background: #4CAF50; color: white; border: none; cursor: pointer;" onclick="getMomFood()">
+                        🍽️ Ask for Food
+                    </button>
+                </div>
+            </div>
+        </div>
+        <button class="exit-btn" onclick="exitHome()">Exit Home</button>
     </div>
 
     <div id="mobileControls">
@@ -389,13 +503,8 @@
         const WORLD_WIDTH = 60;
         const WORLD_HEIGHT = 60;
 
-        // Camera
-        let camera = {
-            x: 0,
-            y: 0
-        };
+        let camera = { x: 0, y: 0 };
 
-        // Game state
         let player = {
             x: 10,
             y: 10,
@@ -404,17 +513,32 @@
             baseSpeed: 0.15,
             inVehicle: false,
             money: 100,
-            inventory: [],
+            hunger: 100,
             patientsTreated: 0,
-            isDoctor: true
         };
 
         let keys = {};
         let nearObject = null;
         let currentPatient = null;
         let inHospital = false;
+        let inChurch = false;
+        let inHome = false;
 
-        // Medical cases database
+        // Bible verses
+        const bibleVerses = [
+            { verse: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.", ref: "John 3:16" },
+            { verse: "The Lord is my shepherd, I lack nothing. He makes me lie down in green pastures, he leads me beside quiet waters.", ref: "Psalm 23:1-2" },
+            { verse: "Trust in the Lord with all your heart and lean not on your own understanding.", ref: "Proverbs 3:5" },
+            { verse: "I can do all things through Christ who strengthens me.", ref: "Philippians 4:13" },
+            { verse: "Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.", ref: "Joshua 1:9" },
+            { verse: "The Lord bless you and keep you; the Lord make his face shine on you and be gracious to you.", ref: "Numbers 6:24-25" },
+            { verse: "Cast all your anxiety on him because he cares for you.", ref: "1 Peter 5:7" },
+            { verse: "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God.", ref: "Philippians 4:6" },
+            { verse: "Love is patient, love is kind. It does not envy, it does not boast, it is not proud.", ref: "1 Corinthians 13:4" },
+            { verse: "And we know that in all things God works for the good of those who love him.", ref: "Romans 8:28" }
+        ];
+
+        // Medical cases
         const medicalCases = [
             {
                 problem: "Broken Arm",
@@ -463,22 +587,6 @@
                 correctTool: "💉 IV Fluids",
                 tools: ["💉 IV Fluids", "💊 Pills", "🩹 Bandage", "🌡️ Thermometer"],
                 instructor: "Severe dehydration needs immediate IV fluid replacement!"
-            },
-            {
-                problem: "Allergic Reaction",
-                emoji: "😷",
-                description: "Patient has swelling, rash, and difficulty breathing after bee sting.",
-                correctTool: "💉 EpiPen",
-                tools: ["💉 EpiPen", "💊 Antihistamine", "🩹 Ice Pack", "🌡️ Oxygen"],
-                instructor: "Anaphylaxis! Administer epinephrine immediately!"
-            },
-            {
-                problem: "Stomach Pain",
-                emoji: "🤢",
-                description: "Severe abdominal pain in lower right quadrant. Possible appendicitis.",
-                correctTool: "🔬 Ultrasound Scan",
-                tools: ["🔬 Ultrasound Scan", "💊 Antacid", "💉 Pain Relief", "🌡️ Blood Test"],
-                instructor: "Could be appendicitis. Need imaging to confirm before surgery!"
             }
         ];
 
@@ -499,7 +607,7 @@
             }
         }
 
-        // NPCs with AI movement
+        // NPCs
         const npcs = [
             { x: 20, y: 10, emoji: '🏃', type: 'jogger', name: 'Jogger', angry: false, dx: 0.05, dy: 0, patrolX: [15, 25] },
             { x: 30, y: 20, emoji: '🚶', type: 'walker', name: 'Pedestrian', angry: false, dx: 0, dy: 0.03, patrolY: [15, 25] },
@@ -510,57 +618,33 @@
 
         // World objects
         const worldObjects = [
-            // HOSPITAL - Main feature!
             { x: 38, y: 18, emoji: '🏥', type: 'hospital', name: 'City Hospital', size: 4 },
             { x: 37, y: 22, emoji: '🚑', type: 'ambulance', name: 'Ambulance' },
-            
-            // Player's house area
-            { x: 8, y: 8, emoji: '🏠', type: 'house', name: 'Your House', size: 2 },
-            { x: 9, y: 9, emoji: '👨', type: 'dad', name: 'Dad', dx: 0.01, dy: 0, moving: true, range: [8.5, 10] },
-            { x: 8.5, y: 9, emoji: '👩‍🍳', type: 'mom', name: 'Mom', dx: 0, dy: 0.01, moving: true, range: [8, 9.5] },
-            
-            // Churches with large trees
+            { x: 8, y: 8, emoji: '🏠', type: 'home', name: 'Your Home', size: 2 },
             { x: 25, y: 8, emoji: '⛪', type: 'church', name: 'Church', size: 3 },
             { x: 23, y: 7, emoji: '🌲', type: 'tree', size: 2.5 },
             { x: 28, y: 7, emoji: '🌲', type: 'tree', size: 2.5 },
             { x: 23, y: 11, emoji: '🌳', type: 'tree', size: 2.5 },
             { x: 28, y: 11, emoji: '🌳', type: 'tree', size: 2.5 },
-            
-            // Supermarket area
             { x: 17, y: 18, emoji: '🏪', type: 'supermarket', name: 'Supermarket', size: 3 },
             { x: 16, y: 17, emoji: '🛒', type: 'cart', name: 'Shopping Cart' },
-            
-            // Residential area
             { x: 48, y: 12, emoji: '🏘️', type: 'building', name: 'Apartments', size: 3 },
             { x: 12, y: 28, emoji: '🏡', type: 'house', name: 'House', size: 2 },
             { x: 48, y: 35, emoji: '🏢', type: 'office', name: 'Office Building', size: 3 },
             { x: 8, y: 45, emoji: '🏠', type: 'house', name: 'House', size: 2 },
-            { x: 28, y: 38, emoji: '🏡', type: 'house', name: 'House', size: 2 },
-            
-            // Vehicles
             { x: 7, y: 11, emoji: '🚗', type: 'car', name: 'Sedan', speed: 0.4 },
             { x: 24, y: 15, emoji: '🚕', type: 'taxi', name: 'Taxi', speed: 0.45 },
             { x: 50, y: 22, emoji: '🚙', type: 'suv', name: 'SUV', speed: 0.35 },
             { x: 18, y: 32, emoji: '🏎️', type: 'sports', name: 'Sports Car', speed: 0.6 },
-            
-            // Forest areas with big trees
             { x: 2, y: 2, emoji: '🌲', type: 'tree', size: 3 },
             { x: 4, y: 3, emoji: '🌲', type: 'tree', size: 2.8 },
             { x: 3, y: 5, emoji: '🌳', type: 'tree', size: 3.2 },
-            { x: 1, y: 7, emoji: '🌲', type: 'tree', size: 2.5 },
             { x: 52, y: 2, emoji: '🌳', type: 'tree', size: 3 },
             { x: 54, y: 4, emoji: '🌲', type: 'tree', size: 2.7 },
-            { x: 53, y: 6, emoji: '🌳', type: 'tree', size: 3.1 },
-            { x: 55, y: 8, emoji: '🌲', type: 'tree', size: 2.9 },
-            { x: 2, y: 52, emoji: '🌲', type: 'tree', size: 3 },
-            { x: 4, y: 53, emoji: '🌳', type: 'tree', size: 2.8 },
-            { x: 3, y: 55, emoji: '🌲', type: 'tree', size: 3.2 },
             { x: 48, y: 48, emoji: '🌳', type: 'tree', size: 3.5 },
             { x: 50, y: 49, emoji: '🌲', type: 'tree', size: 3.2 },
-            { x: 52, y: 48, emoji: '🌳', type: 'tree', size: 3.4 },
         ];
 
-        // Speech synthesis
         function speak(text, pitch = 1, rate = 1) {
             if ('speechSynthesis' in window) {
                 speechSynthesis.cancel();
@@ -572,7 +656,114 @@
             }
         }
 
-        // Generate hospital patients
+        // Hunger system
+        function updateHunger() {
+            player.hunger -= 0.02;
+            if (player.hunger < 0) player.hunger = 0;
+            if (player.hunger > 100) player.hunger = 100;
+
+            document.getElementById('hungerText').textContent = Math.floor(player.hunger) + '%';
+            const fill = document.getElementById('hungerFill');
+            fill.style.width = player.hunger + '%';
+
+            fill.classList.remove('low', 'critical');
+            if (player.hunger < 30) fill.classList.add('critical');
+            else if (player.hunger < 50) fill.classList.add('low');
+
+            if (player.hunger <= 0) {
+                speak("You're starving! You need to eat something immediately!", 1.3, 1.2);
+                player.speed = player.baseSpeed * 0.5;
+            } else if (player.hunger < 20 && Math.random() < 0.01) {
+                speak("I'm so hungry...", 1, 0.9);
+            }
+        }
+
+        function eatFood(hungerRestore) {
+            player.hunger += hungerRestore;
+            if (player.hunger > 100) player.hunger = 100;
+            player.speed = player.inVehicle ? (nearObject?.speed || 0.4) : player.baseSpeed;
+            updateHunger();
+        }
+
+        // Church functions
+        function enterChurch() {
+            inChurch = true;
+            document.getElementById('churchInterior').style.display = 'block';
+            document.getElementById('gameCanvas').style.display = 'none';
+            document.getElementById('minimap').style.display = 'none';
+            document.getElementById('actionBtn').style.display = 'none';
+            getNewVerse();
+        }
+
+        function getNewVerse() {
+            const verse = bibleVerses[Math.floor(Math.random() * bibleVerses.length)];
+            document.getElementById('bibleVerse').textContent = `"${verse.verse}"`;
+            document.getElementById('verseReference').textContent = verse.ref;
+            speak(verse.verse, 0.9, 0.85);
+        }
+
+        function exitChurch() {
+            inChurch = false;
+            document.getElementById('churchInterior').style.display = 'none';
+            document.getElementById('gameCanvas').style.display = 'block';
+            document.getElementById('minimap').style.display = 'block';
+            speak("May God bless you on your journey.", 0.9, 0.85);
+        }
+
+        // Home functions
+        function enterHome() {
+            inHome = true;
+            document.getElementById('homeInterior').style.display = 'block';
+            document.getElementById('gameCanvas').style.display = 'none';
+            document.getElementById('minimap').style.display = 'none';
+            document.getElementById('actionBtn').style.display = 'none';
+            speak("Welcome home, sweetheart!", 1.3, 1);
+        }
+
+        function talkToMom() {
+            const phrases = [
+                "How was work at the hospital today, honey?",
+                "You look tired! Let me make you something to eat!",
+                "I made your favorite dish today!",
+                "Don't forget to eat properly, you're working so hard!",
+                "Your father and I are so proud of you, doctor!"
+            ];
+            speak(phrases[Math.floor(Math.random() * phrases.length)], 1.4, 1);
+        }
+
+        function talkToDad() {
+            const phrases = [
+                "Hey doc, how's it going at the hospital?",
+                "Saved any lives today, champ?",
+                "You're doing great work out there!",
+                "Come sit with me and relax for a bit!",
+                "Your mom's cooking smells amazing, doesn't it?"
+            ];
+            speak(phrases[Math.floor(Math.random() * phrases.length)], 0.8, 0.9);
+        }
+
+        function getMomFood() {
+            const foods = [
+                { name: "Mom's Homemade Soup", restore: 50 },
+                { name: "Delicious Pasta", restore: 60 },
+                { name: "Special Fried Rice", restore: 55 },
+                { name: "Chicken Adobo", restore: 65 }
+            ];
+            const food = foods[Math.floor(Math.random() * foods.length)];
+            eatFood(food.restore);
+            speak(`Here's some fresh ${food.name} for you! Eat up, you need your energy!`, 1.3, 1);
+            document.getElementById('hungerText').textContent = Math.floor(player.hunger) + '%';
+        }
+
+        function exitHome() {
+            inHome = false;
+            document.getElementById('homeInterior').style.display = 'none';
+            document.getElementById('gameCanvas').style.display = 'block';
+            document.getElementById('minimap').style.display = 'block';
+            speak("Take care, see you later!", 1.2, 1);
+        }
+
+        // Hospital functions
         function generatePatients() {
             hospitalPatients = [];
             const numPatients = 6;
@@ -586,20 +777,17 @@
             }
         }
 
-        // Enter hospital
         function enterHospital() {
             inHospital = true;
             document.getElementById('hospitalInterior').style.display = 'block';
             document.getElementById('gameCanvas').style.display = 'none';
             document.getElementById('minimap').style.display = 'none';
             document.getElementById('actionBtn').style.display = 'none';
-            
             generatePatients();
             renderHospitalPatients();
             speak("Welcome to your shift, Doctor! You have patients waiting for treatment.", 1, 1);
         }
 
-        // Render hospital patients
         function renderHospitalPatients() {
             const patientList = document.getElementById('patientList');
             patientList.innerHTML = '';
@@ -608,7 +796,7 @@
                 const bed = document.createElement('div');
                 bed.className = 'patient-bed' + (patient.treated ? ' treated' : '');
                 bed.innerHTML = `
-                    <div class="patient-emoji">${patient.emoji}</div>
+                    <div style="font-size: 48px;">${patient.emoji}</div>
                     <h3>${patient.problem}</h3>
                     <p>${patient.treated ? '✅ Treated' : '⏳ Waiting'}</p>
                 `;
@@ -619,12 +807,10 @@
             });
         }
 
-        // Diagnose patient
         function diagnosePatient(patient) {
             currentPatient = patient;
             document.getElementById('patientProblem').textContent = `🩺 ${patient.problem}`;
             document.getElementById('patientDescription').textContent = patient.description;
-            
             speak(patient.instructor, 1, 0.95);
             
             const toolOptions = document.getElementById('toolOptions');
@@ -641,7 +827,6 @@
             document.getElementById('treatmentPanel').style.display = 'block';
         }
 
-        // Select treatment tool
         function selectTool(tool, patient) {
             const options = document.querySelectorAll('.tool-option');
             options.forEach(opt => {
@@ -652,21 +837,19 @@
                         speak("Excellent diagnosis, Doctor! Patient successfully treated!", 1.2, 1);
                         player.money += 50;
                         player.patientsTreated++;
-                        document.getElementById('money').textContent = `Money: $${player.money}`;
+                        document.getElementById('money').textContent = `Money: ${player.money}`;
                         document.getElementById('patientCount').textContent = player.patientsTreated;
                         patient.treated = true;
-                        
                         setTimeout(() => {
                             closeTreatment();
                             renderHospitalPatients();
-                            
                             if (hospitalPatients.every(p => p.treated)) {
-                                speak("Congratulations! All patients treated successfully! You can take a break now.", 1.1, 1);
+                                speak("Congratulations! All patients treated successfully!", 1.1, 1);
                             }
                         }, 2000);
                     } else {
                         opt.classList.add('wrong');
-                        speak("That's not the correct treatment. The patient needs: " + patient.correctTool, 1, 0.9);
+                        speak("That's not the correct treatment. Try again!", 1, 0.9);
                         setTimeout(() => {
                             closeTreatment();
                         }, 3000);
@@ -675,19 +858,17 @@
             });
         }
 
-        // Close treatment panel
         function closeTreatment() {
             document.getElementById('treatmentPanel').style.display = 'none';
             currentPatient = null;
         }
 
-        // Exit hospital
         function exitHospital() {
             inHospital = false;
             document.getElementById('hospitalInterior').style.display = 'none';
             document.getElementById('gameCanvas').style.display = 'block';
             document.getElementById('minimap').style.display = 'block';
-            speak("Good work today, Doctor! Take care on your way home.", 1, 1);
+            speak("Good work today, Doctor!", 1, 1);
         }
 
         // Update NPCs
@@ -712,11 +893,7 @@
                     npc.angry = true;
                     const originalEmoji = npc.emoji;
                     npc.emoji = '😠';
-                    const phrases = [
-                        "Watch your step, kid!",
-                        "Hey! Watch where you're going!",
-                        "Move it, buddy!"
-                    ];
+                    const phrases = ["Watch your step, kid!", "Hey! Watch where you're going!", "Move it!"];
                     speak(phrases[Math.floor(Math.random() * phrases.length)], 1.2, 1.1);
                     setTimeout(() => {
                         npc.angry = false;
@@ -724,29 +901,12 @@
                     }, 3000);
                 }
             });
-
-            worldObjects.forEach(obj => {
-                if (obj.moving && obj.dx !== undefined) {
-                    obj.x += obj.dx;
-                    if (obj.range && (obj.x <= obj.range[0] || obj.x >= obj.range[1])) {
-                        obj.dx *= -1;
-                    }
-                }
-                if (obj.moving && obj.dy !== undefined) {
-                    obj.y += obj.dy;
-                    if (obj.range && (obj.y <= obj.range[0] || obj.y >= obj.range[1])) {
-                        obj.dy *= -1;
-                    }
-                }
-            });
         }
 
-        // Draw world
         function drawWorld() {
             ctx.fillStyle = '#2d5016';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw grass texture
             ctx.fillStyle = '#3d6020';
             for (let i = 0; i < 200; i++) {
                 const x = Math.random() * canvas.width;
@@ -754,15 +914,12 @@
                 ctx.fillRect(x, y, 2, 2);
             }
 
-            // Draw roads
             roads.forEach(road => {
                 const screenX = (road.x - camera.x) * TILE_SIZE;
                 const screenY = (road.y - camera.y) * TILE_SIZE;
-                
                 if (screenX > -TILE_SIZE && screenX < canvas.width && screenY > -TILE_SIZE && screenY < canvas.height) {
                     ctx.fillStyle = '#3a3a3a';
                     ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-                    
                     if (road.type === 'horizontal' && road.x % 2 === 0) {
                         ctx.fillStyle = '#ffff00';
                         ctx.fillRect(screenX + TILE_SIZE/2 - 2, screenY + TILE_SIZE/2 - 1, 10, 2);
@@ -774,31 +931,26 @@
                 }
             });
 
-            // Draw objects
             worldObjects.forEach(obj => {
                 if (obj.hidden) return;
                 const size = obj.size || 1;
                 const screenX = (obj.x - camera.x) * TILE_SIZE;
                 const screenY = (obj.y - camera.y) * TILE_SIZE;
-                
                 if (screenX > -TILE_SIZE*size && screenX < canvas.width && screenY > -TILE_SIZE*size && screenY < canvas.height) {
                     ctx.font = `${TILE_SIZE * size * 0.9}px Arial`;
                     ctx.fillText(obj.emoji, screenX, screenY + TILE_SIZE * size * 0.85);
                 }
             });
 
-            // Draw NPCs
             npcs.forEach(npc => {
                 const screenX = (npc.x - camera.x) * TILE_SIZE;
                 const screenY = (npc.y - camera.y) * TILE_SIZE;
-                
                 if (screenX > -TILE_SIZE && screenX < canvas.width && screenY > -TILE_SIZE && screenY < canvas.height) {
                     ctx.font = `${TILE_SIZE * 0.9}px Arial`;
                     ctx.fillText(npc.emoji, screenX, screenY + TILE_SIZE * 0.85);
                 }
             });
 
-            // Draw player
             const screenX = (player.x - camera.x) * TILE_SIZE;
             const screenY = (player.y - camera.y) * TILE_SIZE;
             ctx.font = `${TILE_SIZE * 0.9}px Arial`;
@@ -819,7 +971,7 @@
 
             minimapCtx.fillStyle = '#888';
             worldObjects.forEach(obj => {
-                if (obj.type === 'house' || obj.type === 'building' || obj.type === 'church' || obj.type === 'supermarket') {
+                if (obj.type === 'house' || obj.type === 'home' || obj.type === 'building' || obj.type === 'church' || obj.type === 'supermarket') {
                     minimapCtx.fillRect(obj.x * scale, obj.y * scale, scale * 2, scale * 2);
                 }
                 if (obj.type === 'hospital') {
@@ -836,7 +988,6 @@
         function updateCamera() {
             camera.x = player.x - canvas.width / TILE_SIZE / 2;
             camera.y = player.y - canvas.height / TILE_SIZE / 2;
-            
             camera.x = Math.max(0, Math.min(camera.x, WORLD_WIDTH - canvas.width / TILE_SIZE));
             camera.y = Math.max(0, Math.min(camera.y, WORLD_HEIGHT - canvas.height / TILE_SIZE));
         }
@@ -849,7 +1000,6 @@
                 const dx = Math.abs(player.x - npc.x);
                 const dy = Math.abs(player.y - npc.y);
                 const distance = Math.sqrt(dx * dx + dy * dy);
-
                 if (distance < checkDistance) {
                     nearObject = npc;
                     document.getElementById('actionBtn').style.display = 'block';
@@ -863,12 +1013,15 @@
                 const dx = Math.abs(player.x - obj.x);
                 const dy = Math.abs(player.y - obj.y);
                 const distance = Math.sqrt(dx * dx + dy * dy);
-
                 if (distance < checkDistance) {
                     nearObject = obj;
                     document.getElementById('actionBtn').style.display = 'block';
                     if (obj.type === 'hospital') {
-                        document.getElementById('actionBtn').textContent = `Press E - Enter Hospital (Start Work)`;
+                        document.getElementById('actionBtn').textContent = `Press E - Enter Hospital`;
+                    } else if (obj.type === 'church') {
+                        document.getElementById('actionBtn').textContent = `Press E - Enter Church`;
+                    } else if (obj.type === 'home') {
+                        document.getElementById('actionBtn').textContent = `Press E - Enter Home`;
                     } else {
                         document.getElementById('actionBtn').textContent = `Press E - ${obj.name || obj.type}`;
                     }
@@ -901,40 +1054,16 @@
                 case 'hospital':
                     enterHospital();
                     break;
-
-                case 'mom':
-                    const momPhrases = [
-                        "How was work at the hospital today, honey?",
-                        "Make sure you're taking care of yourself too, doctor!",
-                        "Dinner will be ready soon!",
-                        "I'm so proud of you helping people!"
-                    ];
-                    speak(momPhrases[Math.floor(Math.random() * momPhrases.length)], 1.4, 1);
+                case 'church':
+                    enterChurch();
                     break;
-
-                case 'dad':
-                    const dadPhrases = [
-                        "Hey doc, save any lives today?",
-                        "That's my kid, the doctor!",
-                        "Want to relax and watch the game?",
-                        "You work too hard, take a break!"
-                    ];
-                    speak(dadPhrases[Math.floor(Math.random() * dadPhrases.length)], 0.8, 0.9);
+                case 'home':
+                    enterHome();
                     break;
-
                 case 'supermarket':
                     document.getElementById('shop').style.display = 'block';
-                    speak("Welcome to the supermarket, Doctor!", 1.2, 1);
+                    speak("Welcome to the supermarket! Buy food to restore your hunger!", 1.2, 1);
                     break;
-
-                case 'church':
-                    speak("Welcome to the house of worship.", 0.9, 0.8);
-                    break;
-
-                case 'ambulance':
-                    speak("The ambulance is ready for emergencies!", 1.1, 1);
-                    break;
-
                 case 'car':
                 case 'taxi':
                 case 'suv':
@@ -959,20 +1088,15 @@
                         speak("You exited the vehicle.", 1, 1);
                     }
                     break;
-
-                case 'house':
-                    speak("This is a lovely home in the neighborhood!", 1.1, 1);
-                    break;
             }
         }
 
-        function buyItem(item, price) {
+        function buyFood(foodName, price, hungerRestore) {
             if (player.money >= price) {
                 player.money -= price;
-                player.inventory.push(item);
+                eatFood(hungerRestore);
                 document.getElementById('money').textContent = `Money: ${player.money}`;
-                document.getElementById('inventory').textContent = player.inventory.join(' ');
-                speak(`You bought a ${item}!`, 1.2, 1.1);
+                speak(`You bought ${foodName}! Hunger restored!`, 1.2, 1.1);
             } else {
                 speak("You don't have enough money!", 1.3, 1.2);
             }
@@ -989,18 +1113,10 @@
             let speedMultiplier = 1;
             if (keys['Shift']) speedMultiplier = 2;
 
-            if (keys['w'] || keys['ArrowUp']) {
-                player.y -= player.speed * speedMultiplier;
-            }
-            if (keys['s'] || keys['ArrowDown']) {
-                player.y += player.speed * speedMultiplier;
-            }
-            if (keys['a'] || keys['ArrowLeft']) {
-                player.x -= player.speed * speedMultiplier;
-            }
-            if (keys['d'] || keys['ArrowRight']) {
-                player.x += player.speed * speedMultiplier;
-            }
+            if (keys['w'] || keys['ArrowUp']) player.y -= player.speed * speedMultiplier;
+            if (keys['s'] || keys['ArrowDown']) player.y += player.speed * speedMultiplier;
+            if (keys['a'] || keys['ArrowLeft']) player.x -= player.speed * speedMultiplier;
+            if (keys['d'] || keys['ArrowRight']) player.x += player.speed * speedMultiplier;
 
             if (speedMultiplier > 1) {
                 document.getElementById('speed').textContent = player.inVehicle ? 'Fast Driving!' : 'Running!';
@@ -1013,7 +1129,7 @@
 
             for (let obj of worldObjects) {
                 if (obj.hidden) continue;
-                if (obj.type === 'tree' || obj.type === 'building' || obj.type === 'house' || obj.type === 'church' || obj.type === 'office') {
+                if (obj.type === 'tree' || obj.type === 'building' || obj.type === 'house' || obj.type === 'home' || obj.type === 'church' || obj.type === 'office') {
                     const objSize = obj.size || 1;
                     const dx = Math.abs(player.x - obj.x);
                     const dy = Math.abs(player.y - obj.y);
@@ -1028,16 +1144,16 @@
         }
 
         function gameLoop() {
-            if (!inHospital) {
+            if (!inHospital && !inChurch && !inHome) {
                 updatePlayer();
                 updateNPCs();
                 updateCamera();
                 drawWorld();
+                updateHunger();
             }
             requestAnimationFrame(gameLoop);
         }
 
-        // Event listeners
         window.addEventListener('keydown', (e) => {
             keys[e.key] = true;
             if (e.key === 'e' || e.key === 'E') {
@@ -1051,7 +1167,6 @@
 
         document.getElementById('actionBtn').addEventListener('click', interact);
 
-        // Mobile controls
         document.querySelectorAll('.control-btn').forEach(btn => {
             btn.addEventListener('touchstart', (e) => {
                 e.preventDefault();
@@ -1077,16 +1192,21 @@
             canvas.height = window.innerHeight;
         });
 
-        window.buyItem = buyItem;
+        window.buyFood = buyFood;
         window.closeShop = closeShop;
         window.exitHospital = exitHospital;
         window.closeTreatment = closeTreatment;
+        window.exitChurch = exitChurch;
+        window.getNewVerse = getNewVerse;
+        window.exitHome = exitHome;
+        window.talkToMom = talkToMom;
+        window.talkToDad = talkToDad;
+        window.getMomFood = getMomFood;
 
-        // Start game
         gameLoop();
         
         setTimeout(() => {
-            speak("Good morning, Doctor! Welcome to the city. Head to the hospital to start your shift and treat patients!", 1, 1);
+            speak("Good morning, Doctor! Don't forget to eat when you're hungry. Head to the hospital to start your shift!", 1, 1);
         }, 500);
     </script>
 </body>
