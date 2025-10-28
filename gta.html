@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GTA Emoji World - Realistic City</title>
+    <title>GTA Emoji World - Doctor Life</title>
     <style>
         * {
             margin: 0;
@@ -91,7 +91,7 @@
             background: #45a049;
         }
 
-        #shop {
+        .modal {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -102,15 +102,17 @@
             display: none;
             z-index: 200;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            max-width: 400px;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
-        #shop h2 {
+        .modal h2 {
             margin-bottom: 20px;
             color: #333;
         }
 
-        .shop-item {
+        .shop-item, .patient-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -119,7 +121,7 @@
             margin-bottom: 10px;
         }
 
-        .shop-item button {
+        .shop-item button, .patient-item button {
             background: #4CAF50;
             color: white;
             border: none;
@@ -128,11 +130,11 @@
             cursor: pointer;
         }
 
-        .shop-item button:hover {
+        .shop-item button:hover, .patient-item button:hover {
             background: #45a049;
         }
 
-        #closeShop {
+        .close-btn {
             margin-top: 15px;
             width: 100%;
             padding: 10px;
@@ -141,6 +143,123 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+        }
+
+        #hospitalInterior {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #e8f5e9;
+            display: none;
+            z-index: 150;
+        }
+
+        #hospitalUI {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #4CAF50;
+        }
+
+        #hospitalUI h2 {
+            color: #2196F3;
+            margin-bottom: 10px;
+        }
+
+        #exitHospital {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        #patientList {
+            position: absolute;
+            top: 120px;
+            left: 20px;
+            right: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .patient-bed {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 3px solid #2196F3;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .patient-bed:hover {
+            transform: scale(1.05);
+            border-color: #4CAF50;
+        }
+
+        .patient-bed.treated {
+            border-color: #4CAF50;
+            background: #c8e6c9;
+        }
+
+        .patient-emoji {
+            font-size: 48px;
+        }
+
+        #treatmentPanel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            display: none;
+            z-index: 250;
+            box-shadow: 0 0 30px rgba(0,0,0,0.7);
+            max-width: 600px;
+        }
+
+        #treatmentPanel h2 {
+            color: #2196F3;
+            margin-bottom: 20px;
+        }
+
+        .tool-option {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f5f5f5;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tool-option:hover {
+            background: #e3f2fd;
+            border-color: #2196F3;
+        }
+
+        .tool-option.correct {
+            background: #c8e6c9;
+            border-color: #4CAF50;
+        }
+
+        .tool-option.wrong {
+            background: #ffcdd2;
+            border-color: #f44336;
         }
 
         #mobileControls {
@@ -189,9 +308,10 @@
     <canvas id="minimap"></canvas>
     
     <div id="ui">
-        <div>Character: <span id="playerIcon">🧑</span></div>
+        <div>Dr. <span id="playerIcon">👨‍⚕️</span></div>
         <div id="money">Money: $100</div>
-        <div>Speed: <span id="speed">Normal</span></div>
+        <div>Patients Treated: <span id="patientCount">0</span></div>
+        <div>Speed: <span id="speed">Walking</span></div>
         <div>Inventory: <span id="inventory">Empty</span></div>
     </div>
 
@@ -203,7 +323,7 @@
 
     <button id="actionBtn">Press E</button>
 
-    <div id="shop">
+    <div id="shop" class="modal">
         <h2>🏪 Supermarket</h2>
         <div class="shop-item">
             <span>🍕 Pizza - $10</span>
@@ -221,7 +341,25 @@
             <span>🍎 Apple - $2</span>
             <button onclick="buyItem('🍎', 2)">Buy</button>
         </div>
-        <button id="closeShop" onclick="closeShop()">Close</button>
+        <button class="close-btn" onclick="closeShop()">Close</button>
+    </div>
+
+    <div id="hospitalInterior">
+        <div id="hospitalUI">
+            <h2>🏥 City Hospital - Doctor's Shift</h2>
+            <p>Click on patients to diagnose and treat them!</p>
+            <p>Earn $50 for each patient treated correctly.</p>
+        </div>
+        <button id="exitHospital" onclick="exitHospital()">Exit Hospital</button>
+        <div id="patientList"></div>
+    </div>
+
+    <div id="treatmentPanel">
+        <h2 id="patientProblem">Patient Problem</h2>
+        <p id="patientDescription"></p>
+        <h3>Select the correct medical tool:</h3>
+        <div id="toolOptions"></div>
+        <button class="close-btn" onclick="closeTreatment()">Cancel</button>
     </div>
 
     <div id="mobileControls">
@@ -261,28 +399,99 @@
         let player = {
             x: 10,
             y: 10,
-            emoji: '🧑',
+            emoji: '👨‍⚕️',
             speed: 0.15,
             baseSpeed: 0.15,
             inVehicle: false,
             money: 100,
             inventory: [],
-            direction: 'down'
+            patientsTreated: 0,
+            isDoctor: true
         };
 
         let keys = {};
         let nearObject = null;
+        let currentPatient = null;
+        let inHospital = false;
 
-        // Road network - realistic city grid
+        // Medical cases database
+        const medicalCases = [
+            {
+                problem: "Broken Arm",
+                emoji: "🤕",
+                description: "Patient fell and has severe pain in left arm. Visible deformity and swelling.",
+                correctTool: "🩹 Cast & X-Ray",
+                tools: ["🩹 Cast & X-Ray", "💊 Medicine", "💉 Injection", "🌡️ Thermometer"],
+                instructor: "This patient has a fracture. You need to take an X-ray and apply a cast!"
+            },
+            {
+                problem: "High Fever",
+                emoji: "🤒",
+                description: "Patient has temperature of 103°F, complaining of body aches and chills.",
+                correctTool: "💊 Fever Medicine",
+                tools: ["💊 Fever Medicine", "🩹 Bandage", "💉 IV Drip", "🔬 Lab Test"],
+                instructor: "High fever requires antipyretic medication. Check temperature first!"
+            },
+            {
+                problem: "Wound Infection",
+                emoji: "🩸",
+                description: "Deep cut on leg showing signs of infection. Red, swollen, and painful.",
+                correctTool: "💉 Antibiotics & Bandage",
+                tools: ["💉 Antibiotics & Bandage", "🌡️ Thermometer", "💊 Pain Killer", "🩹 Simple Bandage"],
+                instructor: "This wound is infected! Clean it, apply antibiotics, and dress it properly."
+            },
+            {
+                problem: "Heart Palpitations",
+                emoji: "💔",
+                description: "Patient experiencing chest discomfort and irregular heartbeat.",
+                correctTool: "📟 ECG Monitor",
+                tools: ["📟 ECG Monitor", "💊 Aspirin", "💉 Injection", "🌡️ Blood Pressure"],
+                instructor: "Check heart rhythm immediately with ECG! This could be serious."
+            },
+            {
+                problem: "Severe Headache",
+                emoji: "😵",
+                description: "Patient has intense migraine with sensitivity to light and nausea.",
+                correctTool: "💊 Pain Relief",
+                tools: ["💊 Pain Relief", "🩹 Bandage", "💉 IV Fluids", "🔬 Brain Scan"],
+                instructor: "Migraine requires pain medication and a calm environment."
+            },
+            {
+                problem: "Dehydration",
+                emoji: "🥵",
+                description: "Patient is dizzy, has dry mouth, and low blood pressure from heat exposure.",
+                correctTool: "💉 IV Fluids",
+                tools: ["💉 IV Fluids", "💊 Pills", "🩹 Bandage", "🌡️ Thermometer"],
+                instructor: "Severe dehydration needs immediate IV fluid replacement!"
+            },
+            {
+                problem: "Allergic Reaction",
+                emoji: "😷",
+                description: "Patient has swelling, rash, and difficulty breathing after bee sting.",
+                correctTool: "💉 EpiPen",
+                tools: ["💉 EpiPen", "💊 Antihistamine", "🩹 Ice Pack", "🌡️ Oxygen"],
+                instructor: "Anaphylaxis! Administer epinephrine immediately!"
+            },
+            {
+                problem: "Stomach Pain",
+                emoji: "🤢",
+                description: "Severe abdominal pain in lower right quadrant. Possible appendicitis.",
+                correctTool: "🔬 Ultrasound Scan",
+                tools: ["🔬 Ultrasound Scan", "💊 Antacid", "💉 Pain Relief", "🌡️ Blood Test"],
+                instructor: "Could be appendicitis. Need imaging to confirm before surgery!"
+            }
+        ];
+
+        let hospitalPatients = [];
+
+        // Road network
         const roads = [];
-        // Vertical roads
         for (let x = 5; x < WORLD_WIDTH; x += 10) {
             for (let y = 0; y < WORLD_HEIGHT; y++) {
                 roads.push({ x, y, type: 'vertical' });
                 roads.push({ x: x + 1, y, type: 'vertical' });
             }
         }
-        // Horizontal roads
         for (let y = 5; y < WORLD_HEIGHT; y += 10) {
             for (let x = 0; x < WORLD_WIDTH; x++) {
                 roads.push({ x, y: y, type: 'horizontal' });
@@ -299,14 +508,18 @@
             { x: 25, y: 45, emoji: '👨‍💼', type: 'businessman', name: 'Businessman', angry: false, dx: 0, dy: -0.04, patrolY: [40, 50] },
         ];
 
-        // World objects with realistic placement
+        // World objects
         const worldObjects = [
+            // HOSPITAL - Main feature!
+            { x: 38, y: 18, emoji: '🏥', type: 'hospital', name: 'City Hospital', size: 4 },
+            { x: 37, y: 22, emoji: '🚑', type: 'ambulance', name: 'Ambulance' },
+            
             // Player's house area
             { x: 8, y: 8, emoji: '🏠', type: 'house', name: 'Your House', size: 2 },
             { x: 9, y: 9, emoji: '👨', type: 'dad', name: 'Dad', dx: 0.01, dy: 0, moving: true, range: [8.5, 10] },
             { x: 8.5, y: 9, emoji: '👩‍🍳', type: 'mom', name: 'Mom', dx: 0, dy: 0.01, moving: true, range: [8, 9.5] },
             
-            // Churches with large trees around them
+            // Churches with large trees
             { x: 25, y: 8, emoji: '⛪', type: 'church', name: 'Church', size: 3 },
             { x: 23, y: 7, emoji: '🌲', type: 'tree', size: 2.5 },
             { x: 28, y: 7, emoji: '🌲', type: 'tree', size: 2.5 },
@@ -316,73 +529,174 @@
             // Supermarket area
             { x: 17, y: 18, emoji: '🏪', type: 'supermarket', name: 'Supermarket', size: 3 },
             { x: 16, y: 17, emoji: '🛒', type: 'cart', name: 'Shopping Cart' },
-            { x: 20, y: 17, emoji: '🛒', type: 'cart', name: 'Shopping Cart' },
             
             // Residential area
-            { x: 35, y: 12, emoji: '🏘️', type: 'building', name: 'Apartments', size: 3 },
+            { x: 48, y: 12, emoji: '🏘️', type: 'building', name: 'Apartments', size: 3 },
             { x: 12, y: 28, emoji: '🏡', type: 'house', name: 'House', size: 2 },
-            { x: 45, y: 25, emoji: '🏢', type: 'office', name: 'Office Building', size: 3 },
+            { x: 48, y: 35, emoji: '🏢', type: 'office', name: 'Office Building', size: 3 },
             { x: 8, y: 45, emoji: '🏠', type: 'house', name: 'House', size: 2 },
             { x: 28, y: 38, emoji: '🏡', type: 'house', name: 'House', size: 2 },
             
-            // Vehicles parked realistically
+            // Vehicles
             { x: 7, y: 11, emoji: '🚗', type: 'car', name: 'Sedan', speed: 0.4 },
             { x: 24, y: 15, emoji: '🚕', type: 'taxi', name: 'Taxi', speed: 0.45 },
-            { x: 36, y: 22, emoji: '🚙', type: 'suv', name: 'SUV', speed: 0.35 },
+            { x: 50, y: 22, emoji: '🚙', type: 'suv', name: 'SUV', speed: 0.35 },
             { x: 18, y: 32, emoji: '🏎️', type: 'sports', name: 'Sports Car', speed: 0.6 },
-            { x: 42, y: 8, emoji: '🚐', type: 'van', name: 'Van', speed: 0.3 },
             
             // Forest areas with big trees
             { x: 2, y: 2, emoji: '🌲', type: 'tree', size: 3 },
             { x: 4, y: 3, emoji: '🌲', type: 'tree', size: 2.8 },
             { x: 3, y: 5, emoji: '🌳', type: 'tree', size: 3.2 },
             { x: 1, y: 7, emoji: '🌲', type: 'tree', size: 2.5 },
-            
             { x: 52, y: 2, emoji: '🌳', type: 'tree', size: 3 },
             { x: 54, y: 4, emoji: '🌲', type: 'tree', size: 2.7 },
             { x: 53, y: 6, emoji: '🌳', type: 'tree', size: 3.1 },
             { x: 55, y: 8, emoji: '🌲', type: 'tree', size: 2.9 },
-            
             { x: 2, y: 52, emoji: '🌲', type: 'tree', size: 3 },
             { x: 4, y: 53, emoji: '🌳', type: 'tree', size: 2.8 },
             { x: 3, y: 55, emoji: '🌲', type: 'tree', size: 3.2 },
-            { x: 5, y: 57, emoji: '🌳', type: 'tree', size: 2.6 },
-            
-            // Park area with multiple big trees
             { x: 48, y: 48, emoji: '🌳', type: 'tree', size: 3.5 },
             { x: 50, y: 49, emoji: '🌲', type: 'tree', size: 3.2 },
             { x: 52, y: 48, emoji: '🌳', type: 'tree', size: 3.4 },
-            { x: 51, y: 51, emoji: '🌲', type: 'tree', size: 3.1 },
-            { x: 49, y: 52, emoji: '🌳', type: 'tree', size: 3.3 },
-            
-            // Street lights
-            { x: 16, y: 6, emoji: '💡', type: 'light', size: 1 },
-            { x: 26, y: 6, emoji: '💡', type: 'light', size: 1 },
-            { x: 6, y: 16, emoji: '💡', type: 'light', size: 1 },
-            { x: 36, y: 16, emoji: '💡', type: 'light', size: 1 },
         ];
 
         // Speech synthesis
         function speak(text, pitch = 1, rate = 1) {
             if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.pitch = pitch;
                 utterance.rate = rate;
                 utterance.volume = 1;
-                speechSynthesis.cancel();
                 speechSynthesis.speak(utterance);
             }
+        }
+
+        // Generate hospital patients
+        function generatePatients() {
+            hospitalPatients = [];
+            const numPatients = 6;
+            for (let i = 0; i < numPatients; i++) {
+                const caseData = medicalCases[Math.floor(Math.random() * medicalCases.length)];
+                hospitalPatients.push({
+                    id: i,
+                    ...caseData,
+                    treated: false
+                });
+            }
+        }
+
+        // Enter hospital
+        function enterHospital() {
+            inHospital = true;
+            document.getElementById('hospitalInterior').style.display = 'block';
+            document.getElementById('gameCanvas').style.display = 'none';
+            document.getElementById('minimap').style.display = 'none';
+            document.getElementById('actionBtn').style.display = 'none';
+            
+            generatePatients();
+            renderHospitalPatients();
+            speak("Welcome to your shift, Doctor! You have patients waiting for treatment.", 1, 1);
+        }
+
+        // Render hospital patients
+        function renderHospitalPatients() {
+            const patientList = document.getElementById('patientList');
+            patientList.innerHTML = '';
+            
+            hospitalPatients.forEach(patient => {
+                const bed = document.createElement('div');
+                bed.className = 'patient-bed' + (patient.treated ? ' treated' : '');
+                bed.innerHTML = `
+                    <div class="patient-emoji">${patient.emoji}</div>
+                    <h3>${patient.problem}</h3>
+                    <p>${patient.treated ? '✅ Treated' : '⏳ Waiting'}</p>
+                `;
+                if (!patient.treated) {
+                    bed.onclick = () => diagnosePatient(patient);
+                }
+                patientList.appendChild(bed);
+            });
+        }
+
+        // Diagnose patient
+        function diagnosePatient(patient) {
+            currentPatient = patient;
+            document.getElementById('patientProblem').textContent = `🩺 ${patient.problem}`;
+            document.getElementById('patientDescription').textContent = patient.description;
+            
+            speak(patient.instructor, 1, 0.95);
+            
+            const toolOptions = document.getElementById('toolOptions');
+            toolOptions.innerHTML = '';
+            
+            patient.tools.forEach(tool => {
+                const option = document.createElement('div');
+                option.className = 'tool-option';
+                option.textContent = tool;
+                option.onclick = () => selectTool(tool, patient);
+                toolOptions.appendChild(option);
+            });
+            
+            document.getElementById('treatmentPanel').style.display = 'block';
+        }
+
+        // Select treatment tool
+        function selectTool(tool, patient) {
+            const options = document.querySelectorAll('.tool-option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                if (opt.textContent === tool) {
+                    if (tool === patient.correctTool) {
+                        opt.classList.add('correct');
+                        speak("Excellent diagnosis, Doctor! Patient successfully treated!", 1.2, 1);
+                        player.money += 50;
+                        player.patientsTreated++;
+                        document.getElementById('money').textContent = `Money: $${player.money}`;
+                        document.getElementById('patientCount').textContent = player.patientsTreated;
+                        patient.treated = true;
+                        
+                        setTimeout(() => {
+                            closeTreatment();
+                            renderHospitalPatients();
+                            
+                            if (hospitalPatients.every(p => p.treated)) {
+                                speak("Congratulations! All patients treated successfully! You can take a break now.", 1.1, 1);
+                            }
+                        }, 2000);
+                    } else {
+                        opt.classList.add('wrong');
+                        speak("That's not the correct treatment. The patient needs: " + patient.correctTool, 1, 0.9);
+                        setTimeout(() => {
+                            closeTreatment();
+                        }, 3000);
+                    }
+                }
+            });
+        }
+
+        // Close treatment panel
+        function closeTreatment() {
+            document.getElementById('treatmentPanel').style.display = 'none';
+            currentPatient = null;
+        }
+
+        // Exit hospital
+        function exitHospital() {
+            inHospital = false;
+            document.getElementById('hospitalInterior').style.display = 'none';
+            document.getElementById('gameCanvas').style.display = 'block';
+            document.getElementById('minimap').style.display = 'block';
+            speak("Good work today, Doctor! Take care on your way home.", 1, 1);
         }
 
         // Update NPCs
         function updateNPCs() {
             npcs.forEach(npc => {
-                // Patrol movement
                 if (npc.patrolX) {
                     npc.x += npc.dx;
                     if (npc.x <= npc.patrolX[0] || npc.x >= npc.patrolX[1]) {
                         npc.dx *= -1;
-                        npc.emoji = npc.dx > 0 ? '🏃' : '🏃';
                     }
                 }
                 if (npc.patrolY) {
@@ -392,7 +706,6 @@
                     }
                 }
 
-                // Check collision with player
                 const dx = Math.abs(player.x - npc.x);
                 const dy = Math.abs(player.y - npc.y);
                 if (dx < 1 && dy < 1 && !npc.angry) {
@@ -402,9 +715,7 @@
                     const phrases = [
                         "Watch your step, kid!",
                         "Hey! Watch where you're going!",
-                        "Move it, buddy!",
-                        "You better be careful!",
-                        "Get out of my way!"
+                        "Move it, buddy!"
                     ];
                     speak(phrases[Math.floor(Math.random() * phrases.length)], 1.2, 1.1);
                     setTimeout(() => {
@@ -414,7 +725,6 @@
                 }
             });
 
-            // Update moving world objects (dad, mom)
             worldObjects.forEach(obj => {
                 if (obj.moving && obj.dx !== undefined) {
                     obj.x += obj.dx;
@@ -431,9 +741,8 @@
             });
         }
 
-        // Draw functions
+        // Draw world
         function drawWorld() {
-            // Clear canvas
             ctx.fillStyle = '#2d5016';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -454,7 +763,6 @@
                     ctx.fillStyle = '#3a3a3a';
                     ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
                     
-                    // Road markings
                     if (road.type === 'horizontal' && road.x % 2 === 0) {
                         ctx.fillStyle = '#ffff00';
                         ctx.fillRect(screenX + TILE_SIZE/2 - 2, screenY + TILE_SIZE/2 - 1, 10, 2);
@@ -496,7 +804,6 @@
             ctx.font = `${TILE_SIZE * 0.9}px Arial`;
             ctx.fillText(player.emoji, screenX, screenY + TILE_SIZE * 0.85);
 
-            // Draw minimap
             drawMinimap();
         }
 
@@ -505,21 +812,23 @@
             minimapCtx.fillStyle = 'rgba(0, 50, 0, 0.8)';
             minimapCtx.fillRect(0, 0, 150, 150);
 
-            // Draw roads on minimap
             minimapCtx.fillStyle = '#666';
             roads.forEach(road => {
                 minimapCtx.fillRect(road.x * scale, road.y * scale, scale, scale);
             });
 
-            // Draw buildings on minimap
             minimapCtx.fillStyle = '#888';
             worldObjects.forEach(obj => {
                 if (obj.type === 'house' || obj.type === 'building' || obj.type === 'church' || obj.type === 'supermarket') {
                     minimapCtx.fillRect(obj.x * scale, obj.y * scale, scale * 2, scale * 2);
                 }
+                if (obj.type === 'hospital') {
+                    minimapCtx.fillStyle = '#ff0000';
+                    minimapCtx.fillRect(obj.x * scale, obj.y * scale, scale * 3, scale * 3);
+                    minimapCtx.fillStyle = '#888';
+                }
             });
 
-            // Draw player on minimap
             minimapCtx.fillStyle = '#00ff00';
             minimapCtx.fillRect(player.x * scale - 1, player.y * scale - 1, scale + 2, scale + 2);
         }
@@ -534,9 +843,8 @@
 
         function checkNearbyObjects() {
             nearObject = null;
-            const checkDistance = 2;
+            const checkDistance = 3;
 
-            // Check NPCs
             for (let npc of npcs) {
                 const dx = Math.abs(player.x - npc.x);
                 const dy = Math.abs(player.y - npc.y);
@@ -550,7 +858,6 @@
                 }
             }
 
-            // Check world objects
             for (let obj of worldObjects) {
                 if (obj.hidden) continue;
                 const dx = Math.abs(player.x - obj.x);
@@ -560,7 +867,11 @@
                 if (distance < checkDistance) {
                     nearObject = obj;
                     document.getElementById('actionBtn').style.display = 'block';
-                    document.getElementById('actionBtn').textContent = `Press E - ${obj.name || obj.type}`;
+                    if (obj.type === 'hospital') {
+                        document.getElementById('actionBtn').textContent = `Press E - Enter Hospital (Start Work)`;
+                    } else {
+                        document.getElementById('actionBtn').textContent = `Press E - ${obj.name || obj.type}`;
+                    }
                     return;
                 }
             }
@@ -587,40 +898,47 @@
             }
 
             switch(nearObject.type) {
+                case 'hospital':
+                    enterHospital();
+                    break;
+
                 case 'mom':
                     const momPhrases = [
-                        "Dinner will be ready soon, honey!",
-                        "Make sure to eat your vegetables!",
-                        "Did you clean your room?",
-                        "I'm making your favorite tonight!"
+                        "How was work at the hospital today, honey?",
+                        "Make sure you're taking care of yourself too, doctor!",
+                        "Dinner will be ready soon!",
+                        "I'm so proud of you helping people!"
                     ];
                     speak(momPhrases[Math.floor(Math.random() * momPhrases.length)], 1.4, 1);
                     break;
 
                 case 'dad':
                     const dadPhrases = [
-                        "Hey kiddo, how's it going?",
-                        "Did you finish your homework?",
-                        "Want to play catch later?",
-                        "I'm just relaxing here, champ!"
+                        "Hey doc, save any lives today?",
+                        "That's my kid, the doctor!",
+                        "Want to relax and watch the game?",
+                        "You work too hard, take a break!"
                     ];
                     speak(dadPhrases[Math.floor(Math.random() * dadPhrases.length)], 0.8, 0.9);
                     break;
 
                 case 'supermarket':
                     document.getElementById('shop').style.display = 'block';
-                    speak("Welcome to the supermarket! Check out our deals!", 1.2, 1);
+                    speak("Welcome to the supermarket, Doctor!", 1.2, 1);
                     break;
 
                 case 'church':
-                    speak("Welcome to the house of worship. Find peace here.", 0.9, 0.8);
+                    speak("Welcome to the house of worship.", 0.9, 0.8);
+                    break;
+
+                case 'ambulance':
+                    speak("The ambulance is ready for emergencies!", 1.1, 1);
                     break;
 
                 case 'car':
                 case 'taxi':
                 case 'suv':
                 case 'sports':
-                case 'van':
                     if (!player.inVehicle) {
                         player.inVehicle = true;
                         player.emoji = nearObject.emoji;
@@ -628,26 +946,22 @@
                         nearObject.hidden = true;
                         document.getElementById('speed').textContent = 'Driving!';
                         document.getElementById('playerIcon').textContent = nearObject.emoji;
-                        speak("You're now driving! Hold shift to go faster!", 1, 1.2);
+                        speak("You're now driving!", 1, 1.2);
                     } else {
                         player.inVehicle = false;
-                        player.emoji = '🧑';
+                        player.emoji = '👨‍⚕️';
                         player.speed = player.baseSpeed;
                         nearObject.hidden = false;
                         nearObject.x = player.x;
                         nearObject.y = player.y;
-                        document.getElementById('speed').textContent = 'Normal';
-                        document.getElementById('playerIcon').textContent = '🧑';
+                        document.getElementById('speed').textContent = 'Walking';
+                        document.getElementById('playerIcon').textContent = '👨‍⚕️';
                         speak("You exited the vehicle.", 1, 1);
                     }
                     break;
 
                 case 'house':
                     speak("This is a lovely home in the neighborhood!", 1.1, 1);
-                    break;
-
-                case 'office':
-                    speak("This office building looks very professional!", 1, 1);
                     break;
             }
         }
@@ -656,7 +970,7 @@
             if (player.money >= price) {
                 player.money -= price;
                 player.inventory.push(item);
-                document.getElementById('money').textContent = `Money: $${player.money}`;
+                document.getElementById('money').textContent = `Money: ${player.money}`;
                 document.getElementById('inventory').textContent = player.inventory.join(' ');
                 speak(`You bought a ${item}!`, 1.2, 1.1);
             } else {
@@ -677,33 +991,26 @@
 
             if (keys['w'] || keys['ArrowUp']) {
                 player.y -= player.speed * speedMultiplier;
-                player.direction = 'up';
             }
             if (keys['s'] || keys['ArrowDown']) {
                 player.y += player.speed * speedMultiplier;
-                player.direction = 'down';
             }
             if (keys['a'] || keys['ArrowLeft']) {
                 player.x -= player.speed * speedMultiplier;
-                player.direction = 'left';
             }
             if (keys['d'] || keys['ArrowRight']) {
                 player.x += player.speed * speedMultiplier;
-                player.direction = 'right';
             }
 
-            // Update speed indicator
             if (speedMultiplier > 1) {
                 document.getElementById('speed').textContent = player.inVehicle ? 'Fast Driving!' : 'Running!';
             } else {
                 document.getElementById('speed').textContent = player.inVehicle ? 'Driving' : 'Walking';
             }
 
-            // Boundary checks
             player.x = Math.max(0, Math.min(player.x, WORLD_WIDTH - 1));
             player.y = Math.max(0, Math.min(player.y, WORLD_HEIGHT - 1));
 
-            // Collision with solid objects
             for (let obj of worldObjects) {
                 if (obj.hidden) continue;
                 if (obj.type === 'tree' || obj.type === 'building' || obj.type === 'house' || obj.type === 'church' || obj.type === 'office') {
@@ -721,10 +1028,12 @@
         }
 
         function gameLoop() {
-            updatePlayer();
-            updateNPCs();
-            updateCamera();
-            drawWorld();
+            if (!inHospital) {
+                updatePlayer();
+                updateNPCs();
+                updateCamera();
+                drawWorld();
+            }
             requestAnimationFrame(gameLoop);
         }
 
@@ -768,15 +1077,16 @@
             canvas.height = window.innerHeight;
         });
 
-        // Make functions global
         window.buyItem = buyItem;
         window.closeShop = closeShop;
+        window.exitHospital = exitHospital;
+        window.closeTreatment = closeTreatment;
 
-        // Start game with intro
+        // Start game
         gameLoop();
         
         setTimeout(() => {
-            speak("Welcome to the city! Use WASD to move, Shift to run. Press E to interact with people and objects.", 1, 1);
+            speak("Good morning, Doctor! Welcome to the city. Head to the hospital to start your shift and treat patients!", 1, 1);
         }, 500);
     </script>
 </body>
