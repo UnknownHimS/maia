@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTA Emoji World - Realistic City</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+
+        #gameCanvas {
+            display: block;
+            background: #2d5016;
+            image-rendering: crisp-edges;
+        }
+
+        #ui {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 100;
+            border: 2px solid #4CAF50;
+        }
+
+        #money {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        #minimap {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 150px;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            z-index: 100;
+        }
+
+        #controls {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            border: 2px solid #4CAF50;
+        }
+
+        #actionBtn {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: none;
+            z-index: 100;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        #actionBtn:hover {
+            background: #45a049;
+        }
+
+        #shop {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            display: none;
+            z-index: 200;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            max-width: 400px;
+        }
+
+        #shop h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        .shop-item button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .shop-item button:hover {
+            background: #45a049;
+        }
+
+        #closeShop {
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #mobileControls {
+            position: fixed;
+            bottom: 80px;
+            right: 10px;
+            display: none;
+            z-index: 100;
+        }
+
+        .control-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            grid-template-rows: repeat(3, 60px);
+            gap: 5px;
+        }
+
+        .control-btn {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:active {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        @media (max-width: 768px) {
+            #mobileControls {
+                display: block;
+            }
+            #controls {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <canvas id="minimap"></canvas>
+    
+    <div id="ui">
+        <div>Character: <span id="playerIcon">🧑</span></div>
+        <div id="money">Money: $100</div>
+        <div>Speed: <span id="speed">Normal</span></div>
+        <div>Inventory: <span id="inventory">Empty</span></div>
+    </div>
+
+    <div id="controls">
+        <div>🎮 WASD or Arrow Keys to move</div>
+        <div>E - Interact when near objects</div>
+        <div>SHIFT - Run faster</div>
+    </div>
+
+    <button id="actionBtn">Press E</button>
+
+    <div id="shop">
+        <h2>🏪 Supermarket</h2>
+        <div class="shop-item">
+            <span>🍕 Pizza - $10</span>
+            <button onclick="buyItem('🍕', 10)">Buy</button>
+        </div>
+        <div class="shop-item">
+            <span>🍔 Burger - $8</span>
+            <button onclick="buyItem('🍔', 8)">Buy</button>
+        </div>
+        <div class="shop-item">
+            <span>🥤 Soda - $3</span>
+            <button onclick="buyItem('🥤', 3)">Buy</button>
+        </div>
+        <div class="shop-item">
+            <span>🍎 Apple - $2</span>
+            <button onclick="buyItem('🍎', 2)">Buy</button>
+        </div>
+        <button id="closeShop" onclick="closeShop()">Close</button>
+    </div>
+
+    <div id="mobileControls">
+        <div class="control-pad">
+            <div></div>
+            <button class="control-btn" data-dir="up">↑</button>
+            <div></div>
+            <button class="control-btn" data-dir="left">←</button>
+            <div></div>
+            <button class="control-btn" data-dir="right">→</button>
+            <div></div>
+            <button class="control-btn" data-dir="down">↓</button>
+            <div></div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const minimapCanvas = document.getElementById('minimap');
+        const minimapCtx = minimapCanvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const TILE_SIZE = 50;
+        const WORLD_WIDTH = 60;
+        const WORLD_HEIGHT = 60;
+
+        // Camera
+        let camera = {
+            x: 0,
+            y: 0
+        };
+
+        // Game state
+        let player = {
+            x: 10,
+            y: 10,
+            emoji: '🧑',
+            speed: 0.15,
+            baseSpeed: 0.15,
+            inVehicle: false,
+            money: 100,
+            inventory: [],
+            direction: 'down'
+        };
+
+        let keys = {};
+        let nearObject = null;
+
+        // Road network - realistic city grid
+        const roads = [];
+        // Vertical roads
+        for (let x = 5; x < WORLD_WIDTH; x += 10) {
+            for (let y = 0; y < WORLD_HEIGHT; y++) {
+                roads.push({ x, y, type: 'vertical' });
+                roads.push({ x: x + 1, y, type: 'vertical' });
+            }
+        }
+        // Horizontal roads
+        for (let y = 5; y < WORLD_HEIGHT; y += 10) {
+            for (let x = 0; x < WORLD_WIDTH; x++) {
+                roads.push({ x, y: y, type: 'horizontal' });
+                roads.push({ x, y: y + 1, type: 'horizontal' });
+            }
+        }
+
+        // NPCs with AI movement
+        const npcs = [
+            { x: 20, y: 10, emoji: '🏃', type: 'jogger', name: 'Jogger', angry: false, dx: 0.05, dy: 0, patrolX: [15, 25] },
+            { x: 30, y: 20, emoji: '🚶', type: 'walker', name: 'Pedestrian', angry: false, dx: 0, dy: 0.03, patrolY: [15, 25] },
+            { x: 40, y: 30, emoji: '👮', type: 'cop', name: 'Officer', angry: false, dx: 0.04, dy: 0, patrolX: [35, 45] },
+            { x: 15, y: 35, emoji: '🧑', type: 'person', name: 'Citizen', angry: false, dx: -0.03, dy: 0, patrolX: [10, 20] },
+            { x: 25, y: 45, emoji: '👨‍💼', type: 'businessman', name: 'Businessman', angry: false, dx: 0, dy: -0.04, patrolY: [40, 50] },
+        ];
+
+        // World objects with realistic placement
+        const worldObjects = [
+            // Player's house area
+            { x: 8, y: 8, emoji: '🏠', type: 'house', name: 'Your House', size: 2 },
+            { x: 9, y: 9, emoji: '👨', type: 'dad', name: 'Dad', dx: 0.01, dy: 0, moving: true, range: [8.5, 10] },
+            { x: 8.5, y: 9, emoji: '👩‍🍳', type: 'mom', name: 'Mom', dx: 0, dy: 0.01, moving: true, range: [8, 9.5] },
+            
+            // Churches with large trees around them
+            { x: 25, y: 8, emoji: '⛪', type: 'church', name: 'Church', size: 3 },
+            { x: 23, y: 7, emoji: '🌲', type: 'tree', size: 2.5 },
+            { x: 28, y: 7, emoji: '🌲', type: 'tree', size: 2.5 },
+            { x: 23, y: 11, emoji: '🌳', type: 'tree', size: 2.5 },
+            { x: 28, y: 11, emoji: '🌳', type: 'tree', size: 2.5 },
+            
+            // Supermarket area
+            { x: 17, y: 18, emoji: '🏪', type: 'supermarket', name: 'Supermarket', size: 3 },
+            { x: 16, y: 17, emoji: '🛒', type: 'cart', name: 'Shopping Cart' },
+            { x: 20, y: 17, emoji: '🛒', type: 'cart', name: 'Shopping Cart' },
+            
+            // Residential area
+            { x: 35, y: 12, emoji: '🏘️', type: 'building', name: 'Apartments', size: 3 },
+            { x: 12, y: 28, emoji: '🏡', type: 'house', name: 'House', size: 2 },
+            { x: 45, y: 25, emoji: '🏢', type: 'office', name: 'Office Building', size: 3 },
+            { x: 8, y: 45, emoji: '🏠', type: 'house', name: 'House', size: 2 },
+            { x: 28, y: 38, emoji: '🏡', type: 'house', name: 'House', size: 2 },
+            
+            // Vehicles parked realistically
+            { x: 7, y: 11, emoji: '🚗', type: 'car', name: 'Sedan', speed: 0.4 },
+            { x: 24, y: 15, emoji: '🚕', type: 'taxi', name: 'Taxi', speed: 0.45 },
+            { x: 36, y: 22, emoji: '🚙', type: 'suv', name: 'SUV', speed: 0.35 },
+            { x: 18, y: 32, emoji: '🏎️', type: 'sports', name: 'Sports Car', speed: 0.6 },
+            { x: 42, y: 8, emoji: '🚐', type: 'van', name: 'Van', speed: 0.3 },
+            
+            // Forest areas with big trees
+            { x: 2, y: 2, emoji: '🌲', type: 'tree', size: 3 },
+            { x: 4, y: 3, emoji: '🌲', type: 'tree', size: 2.8 },
+            { x: 3, y: 5, emoji: '🌳', type: 'tree', size: 3.2 },
+            { x: 1, y: 7, emoji: '🌲', type: 'tree', size: 2.5 },
+            
+            { x: 52, y: 2, emoji: '🌳', type: 'tree', size: 3 },
+            { x: 54, y: 4, emoji: '🌲', type: 'tree', size: 2.7 },
+            { x: 53, y: 6, emoji: '🌳', type: 'tree', size: 3.1 },
+            { x: 55, y: 8, emoji: '🌲', type: 'tree', size: 2.9 },
+            
+            { x: 2, y: 52, emoji: '🌲', type: 'tree', size: 3 },
+            { x: 4, y: 53, emoji: '🌳', type: 'tree', size: 2.8 },
+            { x: 3, y: 55, emoji: '🌲', type: 'tree', size: 3.2 },
+            { x: 5, y: 57, emoji: '🌳', type: 'tree', size: 2.6 },
+            
+            // Park area with multiple big trees
+            { x: 48, y: 48, emoji: '🌳', type: 'tree', size: 3.5 },
+            { x: 50, y: 49, emoji: '🌲', type: 'tree', size: 3.2 },
+            { x: 52, y: 48, emoji: '🌳', type: 'tree', size: 3.4 },
+            { x: 51, y: 51, emoji: '🌲', type: 'tree', size: 3.1 },
+            { x: 49, y: 52, emoji: '🌳', type: 'tree', size: 3.3 },
+            
+            // Street lights
+            { x: 16, y: 6, emoji: '💡', type: 'light', size: 1 },
+            { x: 26, y: 6, emoji: '💡', type: 'light', size: 1 },
+            { x: 6, y: 16, emoji: '💡', type: 'light', size: 1 },
+            { x: 36, y: 16, emoji: '💡', type: 'light', size: 1 },
+        ];
+
+        // Speech synthesis
+        function speak(text, pitch = 1, rate = 1) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.pitch = pitch;
+                utterance.rate = rate;
+                utterance.volume = 1;
+                speechSynthesis.cancel();
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Update NPCs
+        function updateNPCs() {
+            npcs.forEach(npc => {
+                // Patrol movement
+                if (npc.patrolX) {
+                    npc.x += npc.dx;
+                    if (npc.x <= npc.patrolX[0] || npc.x >= npc.patrolX[1]) {
+                        npc.dx *= -1;
+                        npc.emoji = npc.dx > 0 ? '🏃' : '🏃';
+                    }
+                }
+                if (npc.patrolY) {
+                    npc.y += npc.dy;
+                    if (npc.y <= npc.patrolY[0] || npc.y >= npc.patrolY[1]) {
+                        npc.dy *= -1;
+                    }
+                }
+
+                // Check collision with player
+                const dx = Math.abs(player.x - npc.x);
+                const dy = Math.abs(player.y - npc.y);
+                if (dx < 1 && dy < 1 && !npc.angry) {
+                    npc.angry = true;
+                    const originalEmoji = npc.emoji;
+                    npc.emoji = '😠';
+                    const phrases = [
+                        "Watch your step, kid!",
+                        "Hey! Watch where you're going!",
+                        "Move it, buddy!",
+                        "You better be careful!",
+                        "Get out of my way!"
+                    ];
+                    speak(phrases[Math.floor(Math.random() * phrases.length)], 1.2, 1.1);
+                    setTimeout(() => {
+                        npc.angry = false;
+                        npc.emoji = originalEmoji;
+                    }, 3000);
+                }
+            });
+
+            // Update moving world objects (dad, mom)
+            worldObjects.forEach(obj => {
+                if (obj.moving && obj.dx !== undefined) {
+                    obj.x += obj.dx;
+                    if (obj.range && (obj.x <= obj.range[0] || obj.x >= obj.range[1])) {
+                        obj.dx *= -1;
+                    }
+                }
+                if (obj.moving && obj.dy !== undefined) {
+                    obj.y += obj.dy;
+                    if (obj.range && (obj.y <= obj.range[0] || obj.y >= obj.range[1])) {
+                        obj.dy *= -1;
+                    }
+                }
+            });
+        }
+
+        // Draw functions
+        function drawWorld() {
+            // Clear canvas
+            ctx.fillStyle = '#2d5016';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grass texture
+            ctx.fillStyle = '#3d6020';
+            for (let i = 0; i < 200; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                ctx.fillRect(x, y, 2, 2);
+            }
+
+            // Draw roads
+            roads.forEach(road => {
+                const screenX = (road.x - camera.x) * TILE_SIZE;
+                const screenY = (road.y - camera.y) * TILE_SIZE;
+                
+                if (screenX > -TILE_SIZE && screenX < canvas.width && screenY > -TILE_SIZE && screenY < canvas.height) {
+                    ctx.fillStyle = '#3a3a3a';
+                    ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+                    
+                    // Road markings
+                    if (road.type === 'horizontal' && road.x % 2 === 0) {
+                        ctx.fillStyle = '#ffff00';
+                        ctx.fillRect(screenX + TILE_SIZE/2 - 2, screenY + TILE_SIZE/2 - 1, 10, 2);
+                    }
+                    if (road.type === 'vertical' && road.y % 2 === 0) {
+                        ctx.fillStyle = '#ffff00';
+                        ctx.fillRect(screenX + TILE_SIZE/2 - 1, screenY + TILE_SIZE/2 - 2, 2, 10);
+                    }
+                }
+            });
+
+            // Draw objects
+            worldObjects.forEach(obj => {
+                if (obj.hidden) return;
+                const size = obj.size || 1;
+                const screenX = (obj.x - camera.x) * TILE_SIZE;
+                const screenY = (obj.y - camera.y) * TILE_SIZE;
+                
+                if (screenX > -TILE_SIZE*size && screenX < canvas.width && screenY > -TILE_SIZE*size && screenY < canvas.height) {
+                    ctx.font = `${TILE_SIZE * size * 0.9}px Arial`;
+                    ctx.fillText(obj.emoji, screenX, screenY + TILE_SIZE * size * 0.85);
+                }
+            });
+
+            // Draw NPCs
+            npcs.forEach(npc => {
+                const screenX = (npc.x - camera.x) * TILE_SIZE;
+                const screenY = (npc.y - camera.y) * TILE_SIZE;
+                
+                if (screenX > -TILE_SIZE && screenX < canvas.width && screenY > -TILE_SIZE && screenY < canvas.height) {
+                    ctx.font = `${TILE_SIZE * 0.9}px Arial`;
+                    ctx.fillText(npc.emoji, screenX, screenY + TILE_SIZE * 0.85);
+                }
+            });
+
+            // Draw player
+            const screenX = (player.x - camera.x) * TILE_SIZE;
+            const screenY = (player.y - camera.y) * TILE_SIZE;
+            ctx.font = `${TILE_SIZE * 0.9}px Arial`;
+            ctx.fillText(player.emoji, screenX, screenY + TILE_SIZE * 0.85);
+
+            // Draw minimap
+            drawMinimap();
+        }
+
+        function drawMinimap() {
+            const scale = 2.5;
+            minimapCtx.fillStyle = 'rgba(0, 50, 0, 0.8)';
+            minimapCtx.fillRect(0, 0, 150, 150);
+
+            // Draw roads on minimap
+            minimapCtx.fillStyle = '#666';
+            roads.forEach(road => {
+                minimapCtx.fillRect(road.x * scale, road.y * scale, scale, scale);
+            });
+
+            // Draw buildings on minimap
+            minimapCtx.fillStyle = '#888';
+            worldObjects.forEach(obj => {
+                if (obj.type === 'house' || obj.type === 'building' || obj.type === 'church' || obj.type === 'supermarket') {
+                    minimapCtx.fillRect(obj.x * scale, obj.y * scale, scale * 2, scale * 2);
+                }
+            });
+
+            // Draw player on minimap
+            minimapCtx.fillStyle = '#00ff00';
+            minimapCtx.fillRect(player.x * scale - 1, player.y * scale - 1, scale + 2, scale + 2);
+        }
+
+        function updateCamera() {
+            camera.x = player.x - canvas.width / TILE_SIZE / 2;
+            camera.y = player.y - canvas.height / TILE_SIZE / 2;
+            
+            camera.x = Math.max(0, Math.min(camera.x, WORLD_WIDTH - canvas.width / TILE_SIZE));
+            camera.y = Math.max(0, Math.min(camera.y, WORLD_HEIGHT - canvas.height / TILE_SIZE));
+        }
+
+        function checkNearbyObjects() {
+            nearObject = null;
+            const checkDistance = 2;
+
+            // Check NPCs
+            for (let npc of npcs) {
+                const dx = Math.abs(player.x - npc.x);
+                const dy = Math.abs(player.y - npc.y);
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < checkDistance) {
+                    nearObject = npc;
+                    document.getElementById('actionBtn').style.display = 'block';
+                    document.getElementById('actionBtn').textContent = `Press E - Talk to ${npc.name}`;
+                    return;
+                }
+            }
+
+            // Check world objects
+            for (let obj of worldObjects) {
+                if (obj.hidden) continue;
+                const dx = Math.abs(player.x - obj.x);
+                const dy = Math.abs(player.y - obj.y);
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < checkDistance) {
+                    nearObject = obj;
+                    document.getElementById('actionBtn').style.display = 'block';
+                    document.getElementById('actionBtn').textContent = `Press E - ${obj.name || obj.type}`;
+                    return;
+                }
+            }
+
+            document.getElementById('actionBtn').style.display = 'none';
+        }
+
+        function interact() {
+            if (!nearObject) return;
+
+            if (npcs.includes(nearObject)) {
+                const npc = nearObject;
+                if (!npc.angry) {
+                    npc.angry = true;
+                    const originalEmoji = npc.emoji;
+                    npc.emoji = '😠';
+                    speak("Watch your step, kid!", 1.2, 1.1);
+                    setTimeout(() => {
+                        npc.angry = false;
+                        npc.emoji = originalEmoji;
+                    }, 3000);
+                }
+                return;
+            }
+
+            switch(nearObject.type) {
+                case 'mom':
+                    const momPhrases = [
+                        "Dinner will be ready soon, honey!",
+                        "Make sure to eat your vegetables!",
+                        "Did you clean your room?",
+                        "I'm making your favorite tonight!"
+                    ];
+                    speak(momPhrases[Math.floor(Math.random() * momPhrases.length)], 1.4, 1);
+                    break;
+
+                case 'dad':
+                    const dadPhrases = [
+                        "Hey kiddo, how's it going?",
+                        "Did you finish your homework?",
+                        "Want to play catch later?",
+                        "I'm just relaxing here, champ!"
+                    ];
+                    speak(dadPhrases[Math.floor(Math.random() * dadPhrases.length)], 0.8, 0.9);
+                    break;
+
+                case 'supermarket':
+                    document.getElementById('shop').style.display = 'block';
+                    speak("Welcome to the supermarket! Check out our deals!", 1.2, 1);
+                    break;
+
+                case 'church':
+                    speak("Welcome to the house of worship. Find peace here.", 0.9, 0.8);
+                    break;
+
+                case 'car':
+                case 'taxi':
+                case 'suv':
+                case 'sports':
+                case 'van':
+                    if (!player.inVehicle) {
+                        player.inVehicle = true;
+                        player.emoji = nearObject.emoji;
+                        player.speed = nearObject.speed || 0.4;
+                        nearObject.hidden = true;
+                        document.getElementById('speed').textContent = 'Driving!';
+                        document.getElementById('playerIcon').textContent = nearObject.emoji;
+                        speak("You're now driving! Hold shift to go faster!", 1, 1.2);
+                    } else {
+                        player.inVehicle = false;
+                        player.emoji = '🧑';
+                        player.speed = player.baseSpeed;
+                        nearObject.hidden = false;
+                        nearObject.x = player.x;
+                        nearObject.y = player.y;
+                        document.getElementById('speed').textContent = 'Normal';
+                        document.getElementById('playerIcon').textContent = '🧑';
+                        speak("You exited the vehicle.", 1, 1);
+                    }
+                    break;
+
+                case 'house':
+                    speak("This is a lovely home in the neighborhood!", 1.1, 1);
+                    break;
+
+                case 'office':
+                    speak("This office building looks very professional!", 1, 1);
+                    break;
+            }
+        }
+
+        function buyItem(item, price) {
+            if (player.money >= price) {
+                player.money -= price;
+                player.inventory.push(item);
+                document.getElementById('money').textContent = `Money: $${player.money}`;
+                document.getElementById('inventory').textContent = player.inventory.join(' ');
+                speak(`You bought a ${item}!`, 1.2, 1.1);
+            } else {
+                speak("You don't have enough money!", 1.3, 1.2);
+            }
+        }
+
+        function closeShop() {
+            document.getElementById('shop').style.display = 'none';
+        }
+
+        function updatePlayer() {
+            const prevX = player.x;
+            const prevY = player.y;
+
+            let speedMultiplier = 1;
+            if (keys['Shift']) speedMultiplier = 2;
+
+            if (keys['w'] || keys['ArrowUp']) {
+                player.y -= player.speed * speedMultiplier;
+                player.direction = 'up';
+            }
+            if (keys['s'] || keys['ArrowDown']) {
+                player.y += player.speed * speedMultiplier;
+                player.direction = 'down';
+            }
+            if (keys['a'] || keys['ArrowLeft']) {
+                player.x -= player.speed * speedMultiplier;
+                player.direction = 'left';
+            }
+            if (keys['d'] || keys['ArrowRight']) {
+                player.x += player.speed * speedMultiplier;
+                player.direction = 'right';
+            }
+
+            // Update speed indicator
+            if (speedMultiplier > 1) {
+                document.getElementById('speed').textContent = player.inVehicle ? 'Fast Driving!' : 'Running!';
+            } else {
+                document.getElementById('speed').textContent = player.inVehicle ? 'Driving' : 'Walking';
+            }
+
+            // Boundary checks
+            player.x = Math.max(0, Math.min(player.x, WORLD_WIDTH - 1));
+            player.y = Math.max(0, Math.min(player.y, WORLD_HEIGHT - 1));
+
+            // Collision with solid objects
+            for (let obj of worldObjects) {
+                if (obj.hidden) continue;
+                if (obj.type === 'tree' || obj.type === 'building' || obj.type === 'house' || obj.type === 'church' || obj.type === 'office') {
+                    const objSize = obj.size || 1;
+                    const dx = Math.abs(player.x - obj.x);
+                    const dy = Math.abs(player.y - obj.y);
+                    if (dx < objSize * 0.9 && dy < objSize * 0.9) {
+                        player.x = prevX;
+                        player.y = prevY;
+                    }
+                }
+            }
+
+            checkNearbyObjects();
+        }
+
+        function gameLoop() {
+            updatePlayer();
+            updateNPCs();
+            updateCamera();
+            drawWorld();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Event listeners
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === 'e' || e.key === 'E') {
+                interact();
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        document.getElementById('actionBtn').addEventListener('click', interact);
+
+        // Mobile controls
+        document.querySelectorAll('.control-btn').forEach(btn => {
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const dir = btn.dataset.dir;
+                if (dir === 'up') keys['w'] = true;
+                if (dir === 'down') keys['s'] = true;
+                if (dir === 'left') keys['a'] = true;
+                if (dir === 'right') keys['d'] = true;
+            });
+
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                const dir = btn.dataset.dir;
+                if (dir === 'up') keys['w'] = false;
+                if (dir === 'down') keys['s'] = false;
+                if (dir === 'left') keys['a'] = false;
+                if (dir === 'right') keys['d'] = false;
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Make functions global
+        window.buyItem = buyItem;
+        window.closeShop = closeShop;
+
+        // Start game with intro
+        gameLoop();
+        
+        setTimeout(() => {
+            speak("Welcome to the city! Use WASD to move, Shift to run. Press E to interact with people and objects.", 1, 1);
+        }, 500);
+    </script>
+</body>
+</html>
