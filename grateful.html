@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌍 Emoji World: Lessons of Life</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .game-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .game-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .meter {
+            width: 100px;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .meter-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .karma-fill {
+            background: linear-gradient(90deg, #ff6b6b, #ff8787);
+        }
+
+        .energy-fill {
+            background: linear-gradient(90deg, #ffd93d, #ffea00);
+        }
+
+        .scene-container {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .scene-emoji {
+            font-size: 60px;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: bounceIn 0.6s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .scene-title {
+            font-size: 24px;
+            color: #2d3748;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .dialogue-box {
+            background: #f7fafc;
+            border-left: 4px solid #4299e1;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .speaker {
+            font-weight: bold;
+            color: #4299e1;
+            margin-bottom: 5px;
+        }
+
+        .inner-thought {
+            background: #fff5f7;
+            border-left: 4px solid #f687b3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-style: italic;
+        }
+
+        .choices {
+            margin-top: 25px;
+        }
+
+        .choice-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+
+        .choice-good {
+            border-left: 4px solid #48bb78;
+        }
+
+        .choice-bad {
+            border-left: 4px solid #f56565;
+        }
+
+        .continue-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .continue-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            animation: slideInRight 0.4s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+
+        .notif-good {
+            background: #48bb78;
+        }
+
+        .notif-bad {
+            background: #f56565;
+        }
+
+        .game-over {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .game-over h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .final-stats {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .replay-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .audio-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #667eea;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+
+        .audio-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .character-sprite {
+            font-size: 48px;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>🌍 Emoji World: Lessons of Life</h1>
+            <p>Your choices shape your world</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-label">Karma</div>
+                <div class="stat-value" id="karma-display">💖 0</div>
+                <div class="meter">
+                    <div class="meter-fill karma-fill" id="karma-meter" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Energy</div>
+                <div class="stat-value" id="energy-display">⚡ 3</div>
+                <div class="meter">
+                    <div class="meter-fill energy-fill" id="energy-meter" style="width: 60%"></div>
+                </div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Scene</div>
+                <div class="stat-value" id="scene-display">1/10</div>
+            </div>
+        </div>
+
+        <div class="scene-container" id="game-screen">
+            <!-- Game content will be rendered here -->
+        </div>
+    </div>
+
+    <button class="audio-toggle" id="audio-toggle" title="Toggle Narration">🔊</button>
+
+    <script>
+        // Game State
+        const gameState = {
+            karma: 0,
+            energy: 3,
+            currentScene: 0,
+            hasBreakfast: false,
+            helpedHomeless: false,
+            teamworkChoice: false,
+            miaSoftened: false,
+            apologizedToMom: false,
+            audioEnabled: true,
+            inventory: []
+        };
+
+        // Speech Synthesis API
+        const speech = window.speechSynthesis;
+        let currentUtterance = null;
+
+        function speak(text, rate = 1.0, pitch = 1.0) {
+            if (!gameState.audioEnabled) return;
+            
+            if (speech.speaking) {
+                speech.cancel();
+            }
+
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.rate = rate;
+            currentUtterance.pitch = pitch;
+            currentUtterance.volume = 0.8;
+            speech.speak(currentUtterance);
+        }
+
+        // Game Scenes
+        const scenes = [
+            {
+                id: 0,
+                title: "🏠 Morning at Home",
+                emoji: "🏠🍳",
+                setup: () => {
+                    speak("Good morning! You wake up late. Your mom has prepared breakfast for you.", 1.0, 1.0);
+                    return `
+                        <div class="dialogue-box">
+                            <div class="speaker">👩‍🍳 Mom:</div>
+                            <div>"Breakfast's ready, honey 🍲. You need energy for school."</div>
+                        </div>
+                        <div class="inner-thought">
+                            💭 "Whatever… I just wanna win at everything today."
+                        </div>
+                    `;
+                },
+                choices: [
+                    {
+                        text: "✅ \"Thanks, Mom ❤️\" (Be grateful)",
+                        action: () => {
+                            gameState.karma += 1;
+                            gameState.energy += 2;
+                            gameState.hasBreakfast = true;
+                            gameState.inventory.push('🍎');
+                            showNotification("💖 Karma +1 | ⚡ Energy +2", "good");
+                            speak("You thank your mom warmly. She smiles and you feel energized.", 1.0, 1.1);
+                            nextScene();
+                        },
+                        class: "choice-good"
+                    },
+                    {
+                        text: "❌ \"Bruh, I don't like this 😒\" (Complain)",
+                        action: () => {
+                            gameState.karma -= 1;
+                            showNotification("💔 Karma -1 | Mom looks hurt", "bad");
+                            speak("You complain about the food. Your mom's smile fades. You feel guilty.", 0.9, 0.9);
+                            nextScene();
+                        },
+                        class: "choice-bad"
+                    }
+                ]
+            },
+            {
+                id: 1,
+                title: "🏙️ On the Street",
+                emoji: "🏙️👦",
+                setup: () => {
+                    speak("You walk to school and pass a homeless child who looks hungry.", 1.0, 1.0);
+                    const hasFood = gameState.hasBreakfast ? 
+                        "You have an apple 🍎 in your bag." : 
+                        "You have nothing to share since you didn't eat breakfast.";
+                    return `
+                        <div class="dialogue-box">
+                            <div class="speaker">👦 Homeless Boy:</div>
+                            <div>"I'm hungry… got any food? 🥺"</div>
+                        </div>
+                        <p style="margin: 15px 0; color: #666;">${hasFood}</p>
+                    `;
+                },
+                choices: () => {
+                    if (gameState.hasBreakfast) {
+                        return [
+                            {
+                                text: "🍎 Share your apple (Lose 1 energy)",
+                                action: () => {
+                                    gameState.karma += 2;
+                                    gameState.energy -= 1;
+                                    gameState.helpedHomeless = true;
+                                    showNotification("💖💖 Karma +2 | \"Thank you!\"", "good");
+                                    speak("You give the boy your apple. His face lights up with joy. You feel warm inside.", 1.0, 1.1);
+                                    nextScene();
+                                },
+                                class: "choice-good"
+                            },
+                            {
+                                text: "🚶 Walk away (Keep your energy)",
+                                action: () => {
+                                    gameState.karma -= 1;
+                                    showNotification("💔 You ignored him...", "bad");
+                                    speak("You walk past without helping. The boy's sad eyes follow you.", 0.9, 0.9);
+                                    nextScene();
+                                },
+                                class: "choice-bad"
+                            }
+                        ];
+                    } else {
+                        return [
+                            {
+                                text: "😔 \"Sorry, I have nothing...\"",
+                                action: () => {
+                                    speak("You have nothing to give. The boy understands but looks disappointed.", 1.0, 1.0);
+                                    nextScene();
+                                },
+                                class: "choice-good"
+                            },
+                            {
+                                text: "😒 Ignore and walk away",
+                                action: () => {
+                                    gameState.karma -= 1;
+                                    showNotification("💔 Cold response...", "bad");
+                                    speak("You ignore him completely. That feels harsh.", 0.9, 0.9);
+                                    nextScene();
+                                },
+                                class: "choice-bad"
+                            }
+                        ];
+                    }
+                }
+            },
+            {
+                id: 2,
+                title: "🏫 At School",
+                emoji: "🏫🏆",
+                setup: () => {
+                    speak("You arrive at school. There's a competition today. Your rival Mia is very competitive.", 1.0, 1.0);
+                    return `
+                        <div class="dialogue-box">
+                            <div class="speaker">👩‍🏫 Teacher:</div>
+                            <div>"Today's competition tests teamwork. Remember, working together is more important than winning."</div>
+                        </div>
+                        <div class="dialogue-box">
+                            <div class="speaker">👧🔥 Mia:</div>
+                            <div>"No! Winning is EVERYTHING! Losers don't matter!"</div>
+                        </div>
+                    `;
+                },
+                choices: [
+                    {
+                        text: "💪 \"Let's work together, team!\" (Encourage teamwork)",
+                        action: () => {
+                            gameState.karma += 2;
+                            gameState.teamworkChoice = true;
+                            showNotification("💖💖 Team Leader Unlocked!", "good");
+                            speak("You rally your team. Everyone feels motivated and works together beautifully.", 1.0, 1.1);
+                            nextScene();
+                        },
+                        class: "choice-good"
+                    },
+                    {
+                        text: "😤 \"Yeah! Winning is all that matters!\" (Join Mia's attitude)",
+                        action: () => {
+                            gameState.karma -= 1;
+                            showNotification("💔 Pride increased...", "bad");
+                            speak("You join Mia's competitive attitude. The team feels divided.", 0.9, 0.9);
+                            nextScene();
+                        },
+                        class: "choice-bad"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "🎮 The Competition",
+                emoji: "🎮🎯",
+                setup: () => {
+                    if (gameState.teamworkChoice) {
+                        speak("The competition begins. Your team works in perfect harmony and wins!", 1.1, 1.1);
+                        return `
+                            <p style="text-align: center; font-size: 20px; margin: 20px 0;">
+                                🎉 Your team wins through excellent teamwork! 🎉
+                            </p>
+                            <div class="dialogue-box">
+                                <div class="speaker">👩‍🏫 Teacher:</div>
+                                <div>"Wonderful job! You showed great leadership and cooperation!"</div>
+                            </div>
+                            <p style="margin: 15px 0; color: #666;">Meanwhile, Mia's team struggled due to poor coordination...</p>
+                        `;
+                    } else {
+                        speak("The competition is tough. Both teams compete aggressively. Mia's team loses.", 1.0, 1.0);
+                        return `
+                            <p style="text-align: center; font-size: 20px; margin: 20px 0;">
+                                🏆 The competition ends... tensions are high 😰
+                            </p>
+                            <div class="dialogue-box">
+                                <div class="speaker">👧🔥 Mia:</div>
+                                <div>"We LOST?! This is unacceptable!"</div>
+                            </div>
+                        `;
+                    }
+                },
+                choices: [
+                    {
+                        text: "➡️ Continue to next scene",
+                        action: () => {
+                            nextScene();
+                        },
+                        class: "choice-good"
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "🏟️ After Competition",
+                emoji: "😢💔",
+                setup: () => {
+                    speak("Mia's parents arrive. They try to comfort her, but she's very upset.", 1.0, 1.0);
+                    return `
+                        <div class="dialogue-box">
+                            <div class="speaker">👨‍👩‍👧 Mia's Parents:</div>
+                            <div>"Honey, we're proud of you no matter what. You did your best! ❤️"</div>
+                        </div>
+                        <div class="dialogue-box">
+                            <div class="speaker">👧😡 Mia:</div>
+                            <div>"No! I LOST! You don't understand! You never understand!"</div>
+                        </div>
+                        <p style="margin: 15px 0; color: #666;">Mia runs off crying 😢. Her parents look heartbroken...</p>
+                    `;
+                },
+                choices: () => {
+                    if (gameState.teamworkChoice) {
+                        return [
+                            {
+                                text: "💝 Follow and comfort Mia",
+                                action: () => {
+                                    gameState.karma += 2;
+                                    gameState.miaSoftened = true;
+                                    showNotification("💖💖 Friendship Unlocked!", "good");
+                                    speak("You find Mia and comfort her. She slowly realizes winning isn't everything.", 1.0, 1.1);
+                                    nextScene();
+                                },
+                                class: "choice-good"
+                            },
+                            {
+                                text: "🚶 Let her cool down alone",
+                                action: () => {
+                                    speak("You decide to give Mia some space. Sometimes people need time alone.", 1.0, 1.0);
+                                    nextScene();
+                                },
+                                class: "choice-good"
+                            }
+                        ];
+                    } else {
+                        return [
+                            {
+                                text: "💭 Reflect on the situation",
+                                action: () => {
+                                    speak("You watch Mia yell at her loving parents. Something feels wrong about this.", 1.0, 1.0);
+                                    nextScene();
+                                },
+                                class: "choice-good"
+                            }
+                        ];
+                    }
+                }
+            },
+            {
+                id: 5,
+                title: "🌆 Walk Home",
+                emoji: "🌆🚶",
+                setup: () => {
+                    if (gameState.helpedHomeless) {
+                        speak("You walk past the same spot. The homeless boy waves at you with a big smile!", 1.0, 1.1);
+                        return `
+                            <div class="dialogue-box">
+                                <div class="speaker">👦😊 Homeless Boy:</div>
+                                <div>"Hey! Thanks again for the apple! You're really kind! 🍎"</div>
+                            </div>
+                            <div class="inner-thought">
+                                💭 "Seeing him smile makes me feel good inside..."
+                            </div>
+                        `;
+                    } else {
+                        speak("You walk past the same spot. It's empty now. The homeless boy is gone.", 0.9, 0.9);
+                        return `
+                            <p style="margin: 15px 0; color: #666; text-align: center;">
+                                The spot where the homeless boy was is now empty... 🌫️
+                            </p>
+                            <div class="inner-thought">
+                                💭 "I wonder where he went... I could have helped him..."
+                            </div>
+                        `;
+                    }
+                },
+                choices: [
+                    {
+                        text: "➡️ Continue home",
+                        action: () => {
+                            nextScene();
+                        },
+                        class: "choice-good"
+                    }
+                ]
+            },
+            {
+                id: 6,
+                title: "🏠 Evening Reflection",
+                emoji: "🏠💭",
+                setup: () => {
+                    speak("You arrive home. Time to reflect on today's events.", 1.0, 1.0);
+                    let reflectionText = `
+                        <div class="inner-thought">
+                            💭 "Today was intense... let me think about everything that happened..."<br><br>
+                    `;
+                    
+                    if (!gameState.hasBreakfast) {
+                        reflectionText += `💭 "I complained about Mom's breakfast..."<br>`;
+                    }
+                    if (!gameState.helpedHomeless) {
+                        reflectionText += `💭 "I ignored that hungry kid..."<br>`;
+                    }
+                    if (!gameState.teamworkChoice) {
+                        reflectionText += `💭 "I chose winning over teamwork..."<br>`;
+                    }
+                    reflectionText += `💭 "I saw Mia yell at her loving parents..."<br><br>`;
+                    
+                    if (gameState.karma < 2) {
+                        reflectionText += `💭 "Bruh... I've been acting just like her, haven't I?"<br>`;
+                    } else {
+                        reflectionText += `💭 "I think I made some good choices today..."<br>`;
+                    }
+                    
+                    reflectionText += `</div>`;
+                    return reflectionText;
+                },
+                choices: [
+                    {
+                        text: "➡️ Enter home",
+                        action: () => {
+                            nextScene();
+                        },
+                        class: "choice-good"
+                    }
+                ]
+            },
+            {
+                id: 7,
+                title: "🏠 Dinner with Mom",
+                emoji: "🏠🍛",
+                setup: () => {
+                    speak("Your mom greets you with a warm dinner. This is your chance to make things right.", 1.0, 1.0);
+                    return `
+                        <div class="dialogue-box">
+                            <div class="speaker">👩‍🍳 Mom:</div>
+                            <div>"Welcome home, honey. You must be hungry. I made your favorite dinner 🍛"</div>
+                        </div>
+                        <p style="margin: 15px 0; color: #666;">She looks at you with warm, loving eyes...</p>
+                    `;
+                },
+                choices: () => {
+                    const choices = [
+                        {
+                            text: "❤️ \"Mom, I'm sorry about this morning. Thank you for everything.\"",
+                            action: () => {
+                                gameState.karma += 3;
+                                gameState.apologizedToMom = true;
+                                showNotification("💖💖💖 Karma +3 | Mom is proud!", "good");
+                                speak("You apologize sincerely. Your mom hugs you tightly. This feels right.", 1.0, 1.2);
+                                nextScene();
+                            },
+                            class: "choice-good"
+                        }
+                    ];
+                    
+                    if (!gameState.hasBreakfast) {
+                        choices.push({
+                            text: "😐 Stay silent and eat",
+                            action: () => {
+                                gameState.karma -= 1;
+                                showNotification("💔 Missed opportunity...", "bad");
+                                speak("You eat in silence. Your mom looks a bit sad but doesn't say anything.", 0.9, 0.9);
+                                nextScene();
+                            },
+                            class: "choice-bad"
+                        });
+                    } else {
+                        choices.push({
+                            text: "😊 \"Thanks Mom, you're the best!\"",
+                            action: () => {
+                                gameState.karma += 1;
+                                showNotification("💖 Karma +1", "good");
+                                speak("You thank your mom. She smiles warmly.", 1.0, 1.1);
+                                nextScene();
+                            },
+                            class: "choice-good"
+                        });
+                    }
+                    
+                    return choices;
+                }
+            },
+            {
+                id: 8,
+                title: "📱 Message from Mia",
+                emoji: "📱💬",
+                setup: () => {
+                    if (gameState.miaSoftened) {
+                        speak("You receive a message from Mia. She's changed!", 1.0, 1.1);
+                        return `
+                            <div class="dialogue-box">
+                                <div class="speaker">👧💖 Mia (Message):</div>
+                                <div>"Hey... I apologized to my parents tonight. You showed me that winning isn't everything. Thanks for being a real friend. 🙏💕"</div>
+                            </div>
+                            <div class="inner-thought">
+                                💭 "I'm proud of her... and proud of myself for helping."
+                            </div>
+                        `;
+                    } else {
+                        speak("The evening is quiet. You think about how things could have been different.", 1.0, 1.0);
+                        return `
+                            <p style="margin: 15px 0; color: #666; text-align: center;">
+                                No messages tonight... 📱
+                            </p>
+                            <div class="inner-thought">
+                                💭 "I wonder if Mia is okay... Maybe I could have helped her more."
+                            </div>
+                        `;
+                    }
+                },
+                choices: [
+                    {
+                        text: "😴 Time for bed",
+                        action: () => {
+                            nextScene();
+                        },
+                        class: "choice-good"
+                    }
+                ]
+            },
+            {
+                id: 9,
+                title: "🌙 Dream Sequence",
+                emoji: "🌙✨",
+                setup: () => {
+                    if (gameState.karma >= 3) {
+                        speak("You drift into a beautiful dream. Everyone you helped appears, smiling and grateful.", 1.0, 1.2);
+                        return `
+                            <div style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 15px; color: white;">
+                                <h2 style="margin-bottom: 20px;">🌟 Beautiful Dream 🌟</h2>
+                                <div class="character-sprite">👩‍🍳</div>
+                                <div class="character-sprite">👦😊</div>
+                                <div class="character-sprite">👧💖</div>
+                                <p style="margin-top: 20px; font-size: 18px;">
+                                    All the people you helped appear before you, smiling warmly...
+                                </p>
+                            </div>
+                            <div class="dialogue-box" style="margin-top: 20px;">
+                                <div class="speaker">👼 Dream Voice:</div>
+                                <div>"See? Kindness connects everyone. Your choices created ripples of positivity. Tomorrow, keep being this amazing person."</div>
+                            </div>
+                            <div class="inner-thought">
+                                💭 "Tomorrow, I'll keep being better. This feels right."
+                            </div>
+                        `;
+                    } else {
+                        speak("Your dreams are cloudy and unclear. Voices echo with questions.", 0.9, 0.8);
+                        return `
+                            <div style="text-align: center; background: linear-gradient(135deg, #6c757d 0%, #495057 100%); padding: 30px; border-radius: 15px; color: white;">
+                                <h2 style="margin-bottom: 20px;">🌫️ Cloudy Dreams 🌫️</h2>
+                                <p style="font-size: 18px; opacity: 0.8;">
+                                    Echoes in the fog...<br>
+                                    "Why didn't you help?"<br>
+                                    "You could have been kinder..."<br>
+                                </p>
+                            </div>
+                            <div class="dialogue-box" style="margin-top: 20px;">
+                                <div class="speaker">👼 Dream Voice:</div>
+                                <div>"You still have time to change. Every new day is a chance to be better."</div>
+                            </div>
+                            <div class="inner-thought">
+                                💭 "Tomorrow... I'll try to do better."
+                            </div>
+                        `;
+                    }
+                },
+                choices: [
+                    {
+                        text: "☀️ Wake up to a new day",
+                        action: () => {
+                            showFinalScreen();
+                        },
+                        class: "choice-good"
+                    }
+                ]
+            }
+        ];
+
+        // Update UI
+        function updateStats() {
+            const karmaDisplay = document.getElementById('karma-display');
+            const energyDisplay = document.getElementById('energy-display');
+            const sceneDisplay = document.getElementById('scene-display');
+            const karmaMeter = document.getElementById('karma-meter');
+            const energyMeter = document.getElementById('energy-meter');
+
+            karmaDisplay.textContent = `💖 ${gameState.karma}`;
+            energyDisplay.textContent = `⚡ ${gameState.energy}`;
+            sceneDisplay.textContent = `${gameState.currentScene + 1}/10`;
+
+            // Update meters (max karma is ~10, max energy is 5)
+            karmaMeter.style.width = `${Math.min(Math.max((gameState.karma + 5) * 10, 0), 100)}%`;
+            energyMeter.style.width = `${Math.min(Math.max(gameState.energy * 20, 0), 100)}%`;
+        }
+
+        function showNotification(message, type) {
+            const notif = document.createElement('div');
+            notif.className = `notification notif-${type}`;
+            notif.textContent = message;
+            document.body.appendChild(notif);
+
+            setTimeout(() => {
+                notif.remove();
+            }, 3000);
+        }
+
+        function renderScene(sceneIndex) {
+            const scene = scenes[sceneIndex];
+            const gameScreen = document.getElementById('game-screen');
+            
+            let html = `
+                <div class="fade-in">
+                    <div class="scene-emoji">${scene.emoji}</div>
+                    <h2 class="scene-title">${scene.title}</h2>
+                    ${scene.setup()}
+                    <div class="choices">
+            `;
+
+            const choices = typeof scene.choices === 'function' ? scene.choices() : scene.choices;
+            
+            choices.forEach((choice, index) => {
+                html += `
+                    <button class="choice-btn ${choice.class}" onclick="handleChoice(${sceneIndex}, ${index})">
+                        ${choice.text}
+                    </button>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            gameScreen.innerHTML = html;
+            updateStats();
+        }
+
+        function handleChoice(sceneIndex, choiceIndex) {
+            const scene = scenes[sceneIndex];
+            const choices = typeof scene.choices === 'function' ? scene.choices() : scene.choices;
+            choices[choiceIndex].action();
+        }
+
+        function nextScene() {
+            setTimeout(() => {
+                gameState.currentScene++;
+                if (gameState.currentScene < scenes.length) {
+                    renderScene(gameState.currentScene);
+                }
+            }, 500);
+        }
+
+        function showFinalScreen() {
+            const gameScreen = document.getElementById('game-screen');
+            
+            let worldState, worldEmoji, ending;
+            
+            if (gameState.karma >= 5) {
+                worldState = "✨ BRIGHT AND JOYFUL ✨";
+                worldEmoji = "☀️🌈🌸";
+                ending = `
+                    <p>🍞 The homeless boy now has a small bread stand and waves at you</p>
+                    <p>👧💖 Mia has become a kind friend who values teamwork</p>
+                    <p>👩‍🍳 Mom is humming happily in the kitchen</p>
+                    <p>🌈 The world feels brighter because of your kindness!</p>
+                `;
+            } else if (gameState.karma >= 2) {
+                worldState = "🌤️ CALM AND NEUTRAL 🌤️";
+                worldEmoji = "🌤️🌿";
+                ending = `
+                    <p>The world looks normal and peaceful</p>
+                    <p>People go about their day as usual</p>
+                    <p>You made some good choices, but there's room to grow</p>
+                `;
+            } else {
+                worldState = "☁️ GRAY AND QUIET ☁️";
+                worldEmoji = "☁️🌫️";
+                ending = `
+                    <p>The street feels emptier than before</p>
+                    <p>Mom seems quieter than usual</p>
+                    <p>Mia avoids eye contact</p>
+                    <p>Perhaps tomorrow you can make different choices...</p>
+                `;
+            }
+
+            speak("The next morning arrives. You see how your choices shaped the world around you.", 1.0, 1.0);
+
+            gameScreen.innerHTML = `
+                <div class="game-over fade-in">
+                    <h2>🌅 The Next Morning</h2>
+                    <div class="scene-emoji">${worldEmoji}</div>
+                    <h3 style="margin: 20px 0;">${worldState}</h3>
+                    
+                    <div class="final-stats">
+                        <h3 style="margin-bottom: 15px;">📊 Your Journey</h3>
+                        <p><strong>Final Karma:</strong> ${gameState.karma >= 5 ? '💖💖💖💖💖' : gameState.karma >= 2 ? '💖💖💖' : '💖'} (${gameState.karma})</p>
+                        <p><strong>Final Energy:</strong> ${'⚡'.repeat(Math.max(gameState.energy, 1))} (${gameState.energy})</p>
+                        <p><strong>Helped Homeless Child:</strong> ${gameState.helpedHomeless ? '✅ Yes' : '❌ No'}</p>
+                        <p><strong>Chose Teamwork:</strong> ${gameState.teamworkChoice ? '✅ Yes' : '❌ No'}</p>
+                        <p><strong>Befriended Mia:</strong> ${gameState.miaSoftened ? '✅ Yes' : '❌ No'}</p>
+                        <p><strong>Apologized to Mom:</strong> ${gameState.apologizedToMom ? '✅ Yes' : '❌ No'}</p>
+                    </div>
+
+                    <div style="background: #f7fafc; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                        ${ending}
+                    </div>
+
+                    <div class="inner-thought">
+                        <h3 style="margin-bottom: 10px;">💭 Final Reflection:</h3>
+                        <p style="font-size: 18px; font-weight: bold;">
+                            "Every 'bruh' moment is a chance to grow."
+                        </p>
+                        <p style="margin-top: 10px;">
+                            Your choices created ripples that affected everyone around you. 
+                            ${gameState.karma >= 5 ? 'You showed extraordinary kindness and empathy!' : 
+                              gameState.karma >= 2 ? 'You made decent choices with room to improve.' : 
+                              'Remember, tomorrow is always a new opportunity to be better.'}
+                        </p>
+                    </div>
+
+                    <button class="replay-btn" onclick="resetGame()">🔄 Play Again</button>
+                    <p style="margin-top: 20px; color: #666;">
+                        Try making different choices to see how they change the world!
+                    </p>
+                </div>
+            `;
+        }
+
+        function resetGame() {
+            gameState.karma = 0;
+            gameState.energy = 3;
+            gameState.currentScene = 0;
+            gameState.hasBreakfast = false;
+            gameState.helpedHomeless = false;
+            gameState.teamworkChoice = false;
+            gameState.miaSoftened = false;
+            gameState.apologizedToMom = false;
+            gameState.inventory = [];
+            
+            renderScene(0);
+        }
+
+        // Audio toggle
+        document.getElementById('audio-toggle').addEventListener('click', function() {
+            gameState.audioEnabled = !gameState.audioEnabled;
+            this.textContent = gameState.audioEnabled ? '🔊' : '🔇';
+            
+            if (!gameState.audioEnabled && speech.speaking) {
+                speech.cancel();
+            }
+            
+            showNotification(
+                gameState.audioEnabled ? '🔊 Narration ON' : '🔇 Narration OFF',
+                'good'
+            );
+        });
+
+        // Keyboard controls
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (speech.speaking) {
+                    speech.cancel();
+                }
+            }
+        });
+
+        // Start the game
+        renderScene(0);
+    </script>
+</body>
+</html>
