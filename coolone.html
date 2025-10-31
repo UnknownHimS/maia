@@ -423,26 +423,52 @@
         }, 3000);
     }
 
-    function startMathGame() {
-        setEmoji('🎮');
-        clearButtons();
+  function startMathGame() {
+    setEmoji('🎮');
+    clearButtons();
+
+    // Decide randomly if this will be a math or behavior question
+    const isMathQuestion = Math.random() < 0.7; // 70% chance math, 30% behavior
+
+    if (isMathQuestion) {
+        // Generate random math question
+        const a = Math.floor(Math.random() * 20) + 1; // 1 to 20
+        const b = Math.floor(Math.random() * 20) + 1; // 1 to 20
         const operations = [
-            { a: 5, b: 5, op: '+', answer: 10, display: '5 + 5' },
-            { a: 3, b: 2, op: '×', answer: 6, display: '3 × 2' },
-            { a: 10, b: 2, op: '-', answer: 8, display: '10 - 2' },
-            { a: 8, b: 4, op: '+', answer: 12, display: '8 + 4' },
-            { a: 7, b: 3, op: '-', answer: 4, display: '7 - 3' },
-            { a: 4, b: 3, op: '×', answer: 12, display: '4 × 3' },
-            { a: 6, b: 2, op: '×', answer: 12, display: '6 × 2' },
-            { a: 15, b: 5, op: '-', answer: 10, display: '15 - 5' },
-            { a: 9, b: 3, op: '+', answer: 12, display: '9 + 3' },
-            { a: 2, b: 4, op: '×', answer: 8, display: '2 × 4' }
+            { op: '+', func: (x, y) => x + y },
+            { op: '-', func: (x, y) => x - y },
+            { op: '×', func: (x, y) => x * y }
         ];
-        mathQuestion = operations[Math.floor(Math.random() * operations.length)];
+        const operation = operations[Math.floor(Math.random() * operations.length)];
+        mathQuestion = {
+            a: a,
+            b: b,
+            op: operation.op,
+            answer: operation.func(a, b),
+            display: `${a} ${operation.op} ${b}`
+        };
+
         setMessage(`Let's play math! What is ${mathQuestion.display}?`);
         showElement('inputContainer');
         document.getElementById('answerInput').focus();
+    } else {
+        // Behavior/Empathy question
+        setEmoji('🤔');
+        setMessage("If you saw one of your classmates crying, what would you do?");
+        clearButtons();
+        addButton('Ignore', () => {
+            setEmoji('😔');
+            setMessage("Oh no! Ignoring someone in need isn't kind. Try to be empathetic next time.");
+            setTimeout(() => startMathGame(), 3000);
+        });
+        addButton('Help', () => {
+            setEmoji('😊');
+            setMessage("Great choice! Helping others shows kindness and empathy. Keep it up!");
+            setTimeout(() => startMathGame(), 3000);
+        });
     }
+}
+
 
     function checkAnswer() {
         const userAnswer = parseInt(document.getElementById('answerInput').value);
