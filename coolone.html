@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maia's Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: #0a0e27;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated space background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(2px 2px at 20% 30%, white, transparent),
+                radial-gradient(2px 2px at 60% 70%, white, transparent),
+                radial-gradient(1px 1px at 50% 50%, white, transparent),
+                radial-gradient(1px 1px at 80% 10%, white, transparent),
+                radial-gradient(2px 2px at 90% 60%, white, transparent),
+                radial-gradient(1px 1px at 33% 80%, white, transparent),
+                radial-gradient(1px 1px at 15% 75%, white, transparent);
+            background-size: 200% 200%;
+            animation: twinkle 8s ease-in-out infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.9; }
+        }
+
+        /* Moving gradient planets/nebula effect */
+        body::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(30, 144, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 40% 80%, rgba(255, 20, 147, 0.1) 0%, transparent 50%);
+            animation: drift 20s ease-in-out infinite;
+        }
+
+        @keyframes drift {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(5%, 5%); }
+            66% { transform: translate(-3%, 3%); }
+        }
+
+        .container {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(100, 150, 255, 0.3);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                        0 0 40px rgba(100, 150, 255, 0.1);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .emoji {
+            font-size: 120px;
+            margin: 20px 0;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .message {
+            font-size: 20px;
+            color: #e0e7ff;
+            margin: 20px 0;
+            line-height: 1.6;
+            text-shadow: 0 0 10px rgba(224, 231, 255, 0.3);
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: 2px solid rgba(100, 150, 255, 0.5);
+            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.8) 0%, rgba(30, 144, 255, 0.6) 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            box-shadow: 0 5px 15px rgba(30, 144, 255, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(30, 144, 255, 0.5);
+            background: linear-gradient(135deg, rgba(30, 58, 138, 1) 0%, rgba(30, 144, 255, 0.8) 100%);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .image-container {
+            margin: 20px 0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(100, 150, 255, 0.3);
+        }
+
+        .input-container {
+            margin: 20px 0;
+        }
+
+        input[type="text"] {
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid rgba(100, 150, 255, 0.5);
+            border-radius: 15px;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: rgba(15, 23, 42, 0.6);
+            color: #e0e7ff;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: rgba(30, 144, 255, 1);
+            box-shadow: 0 0 15px rgba(30, 144, 255, 0.5);
+        }
+
+        .video-container {
+            margin: 20px 0;
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 15px;
+            border: 2px solid rgba(100, 150, 255, 0.3);
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Shooting star effect (optional, subtle) */
+        @keyframes shoot {
+            0% {
+                transform: translateX(0) translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(300px) translateY(300px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="emoji" id="emoji">😊</div>
+        <div class="message" id="message">Hello, Ma'am! Welcome!</div>
+        <div class="buttons" id="buttons"></div>
+        <div class="image-container hidden" id="imageContainer"></div>
+        <div class="video-container hidden" id="videoContainer"></div>
+        <div class="input-container hidden" id="inputContainer">
+            <input type="text" id="answerInput" placeholder="Type your answer here">
+            <button onclick="checkAnswer()">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        let currentState = 'initial';
+        let mathQuestion = {};
+        let speechSynth = window.speechSynthesis;
+        let currentUtterance = null;
+        let voicesLoaded = false;
+
+        // Load voices
+        function loadVoices() {
+            return new Promise((resolve) => {
+                let voices = speechSynth.getVoices();
+                if (voices.length > 0) {
+                    voicesLoaded = true;
+                    resolve(voices);
+                } else {
+                    speechSynth.onvoiceschanged = () => {
+                        voices = speechSynth.getVoices();
+                        voicesLoaded = true;
+                        resolve(voices);
+                    };
+                }
+            });
+        }
+
+        async function speak(text) {
+            // Cancel any ongoing speech
+            speechSynth.cancel();
+
+            // Wait for voices to load if not loaded yet
+            if (!voicesLoaded) {
+                await loadVoices();
+            }
+
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.rate = 0.9;
+            currentUtterance.pitch = 1.3;
+            
+            // Try to select a female voice
+            let voices = speechSynth.getVoices();
+            let femaleVoice = voices.find(voice => 
+                voice.name.toLowerCase().includes('female') || 
+                voice.name.includes('Samantha') ||
+                voice.name.includes('Victoria') ||
+                voice.name.includes('Zira') ||
+                voice.name.includes('Google UK English Female') ||
+                voice.name.includes('Microsoft Zira') ||
+                (voice.lang.includes('en') && voice.name.includes('2'))
+            );
+            
+            if (femaleVoice) {
+                currentUtterance.voice = femaleVoice;
+            }
+            
+            speechSynth.speak(currentUtterance);
+        }
+
+        function setEmoji(emoji) {
+            document.getElementById('emoji').textContent = emoji;
+        }
+
+        function setMessage(text) {
+            document.getElementById('message').textContent = text;
+            speak(text);
+        }
+
+        function clearButtons() {
+            document.getElementById('buttons').innerHTML = '';
+        }
+
+        function addButton(text, callback) {
+            const btn = document.createElement('button');
+            btn.textContent = text;
+            btn.onclick = callback;
+            document.getElementById('buttons').appendChild(btn);
+        }
+
+        function hideElement(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function showElement(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function getCurrentTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            return `${hours}:${minutes} ${ampm}`;
+        }
+
+        function getTimeOfDay() {
+            const hour = new Date().getHours();
+            if (hour >= 22 || hour < 6) return 'sleep';
+            if (hour >= 10 && hour < 14) return 'lunch';
+            if (hour === 15) return 'reading';
+            return 'other';
+        }
+
+        function handleSleepTime() {
+            setEmoji('😴');
+            const time = getCurrentTime();
+            setMessage(`Hello, Ma'am! Welcome back! The time now is ${time}. You're supposed to be sleeping. Remember to rest, or you'll turn into a zombie tomorrow!`);
+            clearButtons();
+        }
+
+        function handleLunchTime() {
+            setEmoji('🍽️');
+            const time = getCurrentTime();
+            setMessage(`Hello, Ma'am! The time is ${time}. I'm assuming you already ate your food. If not, go eat your food and appreciate your blessings.`);
+            clearButtons();
+            addButton('Not yet', handleNotYet);
+            addButton('I already ate', handleAlreadyAte);
+        }
+
+        function handleReadingTime() {
+            setEmoji('📚');
+            const time = getCurrentTime();
+            setMessage(`Hello, Ma'am! It's ${time}! It's time to practice reading now — grab your book and read for a few minutes so your brain stays strong!`);
+            clearButtons();
+        }
+
+        function handleNotYet() {
+            setEmoji('😢');
+            clearButtons();
+            
+            // Show sad child image
+            const imgContainer = document.getElementById('imageContainer');
+            imgContainer.innerHTML = '<img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400" alt="Sad child">';
+            showElement('imageContainer');
+            
+            setMessage("She is hungry, and her mother and father abandoned her. She's going to starve to death… but other kids like you don't eat.");
+            
+            setTimeout(() => {
+                hideElement('imageContainer');
+                setEmoji('😊');
+                setMessage("Now go eat your food and be happy that you have it.");
+                setTimeout(() => {
+                    proceedToBehavior();
+                }, 3000);
+            }, 5000);
+        }
+
+        function handleAlreadyAte() {
+            setEmoji('😄');
+            setMessage("That's good!");
+            clearButtons();
+            
+            setTimeout(() => {
+                addButton('Soda Pop (YouTube)', showSodaPop);
+                addButton('Random Facts', showRandomFact);
+            }, 2000);
+        }
+
+        function showSodaPop() {
+            clearButtons();
+            const videoContainer = document.getElementById('videoContainer');
+            videoContainer.innerHTML = '<iframe src="https://www.youtube.com/embed/gPbh6Ru7VVM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+            showElement('videoContainer');
+            setMessage("Enjoy the music!");
+            
+            setTimeout(() => {
+                hideElement('videoContainer');
+                addButton("Let's Play!", startMathGame);
+            }, 3000);
+        }
+
+        function showRandomFact() {
+            const facts = [
+                "Did you know? Honey never spoils! Archaeologists found 3000-year-old honey in Egyptian tombs and it was still good to eat!",
+                "A group of flamingos is called a 'flamboyance'! Isn't that fancy?",
+                "Butterflies taste with their feet! They step on their food to see if it's yummy.",
+                "An octopus has three hearts! Two pump blood to the gills, and one pumps it to the body.",
+                "Bananas are berries, but strawberries aren't! Science is surprising!",
+                "A baby elephant can weigh up to 200 pounds when it's born!",
+                "The shortest war in history lasted only 38 minutes between Britain and Zanzibar!",
+                "Some cats are allergic to humans, just like humans can be allergic to cats!"
+            ];
+            
+            const randomFact = facts[Math.floor(Math.random() * facts.length)];
+            setEmoji('🤓');
+            setMessage(randomFact);
+            clearButtons();
+            
+            setTimeout(() => {
+                addButton("Let's Play!", startMathGame);
+            }, 3000);
+        }
+
+        function startMathGame() {
+            setEmoji('🎮');
+            clearButtons();
+            
+            const operations = [
+                { a: 5, b: 5, op: '+', answer: 10 },
+                { a: 3, b: 2, op: '×', answer: 6 },
+                { a: 10, b: 2, op: '-', answer: 8 },
+                { a: 8, b: 4, op: '+', answer: 12 },
+                { a: 7, b: 3, op: '-', answer: 4 },
+                { a: 4, b: 3, op: '×', answer: 12 }
+            ];
+            
+            mathQuestion = operations[Math.floor(Math.random() * operations.length)];
+            setMessage(`Let's play math! What is ${mathQuestion.a} ${mathQuestion.op} ${mathQuestion.b}?`);
+            showElement('inputContainer');
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answerInput').value);
+            
+            if (userAnswer === mathQuestion.answer) {
+                setEmoji('🎉');
+                setMessage("Correct! Great job!");
+                hideElement('inputContainer');
+                document.getElementById('answerInput').value = '';
+                
+                setTimeout(() => {
+                    proceedToBehavior();
+                }, 2000);
+            } else {
+                setEmoji('🤔');
+                setMessage(`Not quite! Try again. What is ${mathQuestion.a} ${mathQuestion.op} ${mathQuestion.b}?`);
+            }
+        }
+
+        function proceedToBehavior() {
+            setEmoji('🤔');
+            setMessage("If you want something from your parents, what will you do?");
+            clearButtons();
+            addButton('Get angry and shout at them 😡', handleShout);
+            addButton('Say please, can you get me something? 😊', handlePolite);
+        }
+
+        function handleShout() {
+            setEmoji('😔');
+            setMessage("Oh no! Shouting and getting angry isn't kind. It makes everyone feel sad and hurt. When we're angry, it's hard for others to want to help us. Remember, being kind and respectful is always the better choice!");
+            clearButtons();
+            
+            setTimeout(() => {
+                setEmoji('😊');
+                setMessage("Let's try to be kind and patient with the people we love!");
+            }, 4000);
+        }
+
+        function handlePolite() {
+            setEmoji('😊');
+            setMessage("Excellent! You're so polite and kind! When we ask nicely and say 'please,' people are happy to help us. Being respectful and patient shows that we care about others' feelings. Keep being wonderful!");
+            clearButtons();
+        }
+
+        // Initialize based on time
+        async function init() {
+            // Load voices first
+            await loadVoices();
+            
+            const timeOfDay = getTimeOfDay();
+            
+            switch(timeOfDay) {
+                case 'sleep':
+                    handleSleepTime();
+                    break;
+                case 'lunch':
+                    handleLunchTime();
+                    break;
+                case 'reading':
+                    handleReadingTime();
+                    break;
+                default:
+                    setEmoji('😊');
+                    const time = getCurrentTime();
+                    setMessage(`Hello, Ma'am! Welcome! The time is ${time}. Have a wonderful day!`);
+            }
+        }
+
+        // Start when page loads
+        window.onload = init;
+    </script>
+</body>
+</html>
