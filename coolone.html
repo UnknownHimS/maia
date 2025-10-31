@@ -328,7 +328,7 @@
         setTimeout(() => {
             addButton('Not yet', handleNotYet);
             addButton('I already ate', handleAlreadyAte);
-        }, 1000);
+        }, 5000);
     }
 
     // Reading Time
@@ -339,7 +339,7 @@
         clearButtons();
         setTimeout(() => {
             addButton('Start Reading Session', startReadingSession);
-        }, 2000);
+        }, 5000);
     }
 
     function startReadingSession() {
@@ -348,7 +348,7 @@
         clearButtons();
         setTimeout(() => {
             proceedToBehavior();
-        }, 3000);
+        }, 5000);
     }
 
     function handleNotYet() {
@@ -378,7 +378,7 @@
             addButton('🎵 Soda Pop (YouTube)', showSodaPop);
             addButton('🧠 Random Facts', showRandomFact);
             addButton('🎯 Let\'s Play Math!', startMathGame);
-        }, 2000);
+        }, 10000);
     }
 
     function showSodaPop() {
@@ -459,12 +459,12 @@
         addButton('Ignore', () => {
             setEmoji('😔');
             setMessage("Oh no! Ignoring someone in need isn't kind. Try to be empathetic next time.");
-            setTimeout(() => startMathGame(), 3000);
+            setTimeout(() => startMathGame(), 10000);
         });
         addButton('Help', () => {
             setEmoji('😊');
             setMessage("Great choice! Helping others shows kindness and empathy. Keep it up!");
-            setTimeout(() => startMathGame(), 3000);
+            setTimeout(() => startMathGame(), 6000);
         });
     }
 }
@@ -521,7 +521,7 @@
         clearButtons();
         setTimeout(() => {
             addButton('Thank you, Maia!', showFinalMessage);
-        }, 3000);
+        }, 6000);
     }
 
     function showFinalMessage() {
@@ -530,7 +530,7 @@
         clearButtons();
         setTimeout(() => {
             addButton('Start Over', init);
-        }, 3000);
+        }, 6000);
     }
 
     async function init() {
@@ -557,7 +557,7 @@
                 setMessage(`Hello, Ma'am! Welcome! The time is ${time}. Have a wonderful day!`);
                 setTimeout(() => {
                     addButton('Let\'s Start Learning!', handleLunchTime);
-                }, 2000);
+                }, 10000);
         }
     }
 
