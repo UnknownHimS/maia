@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maia's Assistant</title>
+    <title>Maia's Learning Assistant</title>
     <style>
         * {
             margin: 0;
@@ -49,7 +49,6 @@
             50% { opacity: 0.9; }
         }
 
-        /* Moving gradient planets/nebula effect */
         body::after {
             content: '';
             position: absolute;
@@ -164,6 +163,10 @@
             margin-bottom: 10px;
         }
 
+        input[type="text"]::placeholder {
+            color: rgba(224, 231, 255, 0.5);
+        }
+
         input[type="text"]:focus {
             outline: none;
             border-color: rgba(30, 144, 255, 1);
@@ -192,18 +195,6 @@
         .hidden {
             display: none;
         }
-
-        /* Shooting star effect (optional, subtle) */
-        @keyframes shoot {
-            0% {
-                transform: translateX(0) translateY(0);
-                opacity: 1;
-            }
-            100% {
-                transform: translateX(300px) translateY(300px);
-                opacity: 0;
-            }
-        }
     </style>
 </head>
 <body>
@@ -215,289 +206,344 @@
         <div class="video-container hidden" id="videoContainer"></div>
         <div class="input-container hidden" id="inputContainer">
             <input type="text" id="answerInput" placeholder="Type your answer here">
-            <button onclick="checkAnswer()">Submit</button>
+            <button onclick="checkAnswer()">Submit Answer</button>
         </div>
     </div>
 
-    <script>
-        let currentState = 'initial';
-        let mathQuestion = {};
-        let speechSynth = window.speechSynthesis;
-        let currentUtterance = null;
-        let voicesLoaded = false;
+<script>
+    let mathQuestion = {};
+    let speechSynth = window.speechSynthesis;
+    let currentUtterance = null;
+    let voicesLoaded = false;
 
-        // Load voices
-        function loadVoices() {
-            return new Promise((resolve) => {
-                let voices = speechSynth.getVoices();
-                if (voices.length > 0) {
+    // Load voices
+    function loadVoices() {
+        return new Promise((resolve) => {
+            let voices = speechSynth.getVoices();
+            if (voices.length > 0) {
+                voicesLoaded = true;
+                resolve(voices);
+            } else {
+                speechSynth.onvoiceschanged = () => {
+                    voices = speechSynth.getVoices();
                     voicesLoaded = true;
                     resolve(voices);
-                } else {
-                    speechSynth.onvoiceschanged = () => {
-                        voices = speechSynth.getVoices();
-                        voicesLoaded = true;
-                        resolve(voices);
-                    };
-                }
-            });
-        }
-
-        async function speak(text) {
-            // Cancel any ongoing speech
-            speechSynth.cancel();
-
-            // Wait for voices to load if not loaded yet
-            if (!voicesLoaded) {
-                await loadVoices();
+                };
             }
+        });
+    }
 
-            currentUtterance = new SpeechSynthesisUtterance(text);
-            currentUtterance.rate = 0.9;
-            currentUtterance.pitch = 1.3;
-            
-            // Try to select a female voice
-            let voices = speechSynth.getVoices();
-            let femaleVoice = voices.find(voice => 
-                voice.name.toLowerCase().includes('female') || 
-                voice.name.includes('Samantha') ||
-                voice.name.includes('Victoria') ||
-                voice.name.includes('Zira') ||
-                voice.name.includes('Google UK English Female') ||
-                voice.name.includes('Microsoft Zira') ||
-                (voice.lang.includes('en') && voice.name.includes('2'))
-            );
-            
-            if (femaleVoice) {
-                currentUtterance.voice = femaleVoice;
-            }
-            
-            speechSynth.speak(currentUtterance);
+    async function speak(text) {
+        // Cancel any ongoing speech
+        speechSynth.cancel();
+
+        // Wait for voices to load if not loaded yet
+        if (!voicesLoaded) {
+            await loadVoices();
         }
 
-        function setEmoji(emoji) {
-            document.getElementById('emoji').textContent = emoji;
+        currentUtterance = new SpeechSynthesisUtterance(text);
+        currentUtterance.rate = 0.9;
+        currentUtterance.pitch = 1.3;
+        
+        // Try to select a female voice
+        let voices = speechSynth.getVoices();
+        let femaleVoice = voices.find(voice => 
+            voice.name.toLowerCase().includes('female') || 
+            voice.name.includes('Samantha') ||
+            voice.name.includes('Victoria') ||
+            voice.name.includes('Zira') ||
+            voice.name.includes('Google UK English Female') ||
+            voice.name.includes('Microsoft Zira') ||
+            voice.name.includes('Karen') ||
+            (voice.lang.includes('en') && voice.name.includes('2'))
+        );
+        
+        if (femaleVoice) {
+            currentUtterance.voice = femaleVoice;
         }
+        
+        speechSynth.speak(currentUtterance);
+    }
 
-        function setMessage(text) {
-            document.getElementById('message').textContent = text;
-            speak(text);
-        }
+    function setEmoji(emoji) {
+        document.getElementById('emoji').textContent = emoji;
+    }
 
-        function clearButtons() {
-            document.getElementById('buttons').innerHTML = '';
-        }
+    function setMessage(text) {
+        document.getElementById('message').textContent = text;
+        speak(text);
+    }
 
-        function addButton(text, callback) {
-            const btn = document.createElement('button');
-            btn.textContent = text;
-            btn.onclick = callback;
-            document.getElementById('buttons').appendChild(btn);
-        }
+    function clearButtons() {
+        document.getElementById('buttons').innerHTML = '';
+    }
 
-        function hideElement(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
+    function addButton(text, callback) {
+        const btn = document.createElement('button');
+        btn.textContent = text;
+        btn.onclick = callback;
+        document.getElementById('buttons').appendChild(btn);
+    }
 
-        function showElement(id) {
-            document.getElementById(id).classList.remove('hidden');
-        }
+    function hideElement(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
 
-        function getCurrentTime() {
-            const now = new Date();
-            let hours = now.getHours();
-            let minutes = now.getMinutes();
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12 || 12;
-            minutes = minutes < 10 ? '0' + minutes : minutes;
-            return `${hours}:${minutes} ${ampm}`;
-        }
+    function showElement(id) {
+        document.getElementById(id).classList.remove('hidden');
+    }
 
-        function getTimeOfDay() {
-            const hour = new Date().getHours();
-            if (hour >= 22 || hour < 6) return 'sleep';
-            if (hour >= 10 && hour < 14) return 'lunch';
-            if (hour === 15) return 'reading';
-            return 'other';
-        }
+    function getCurrentTime() {
+        const now = new Date();
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        return `${hours}:${minutes} ${ampm}`;
+    }
 
-        function handleSleepTime() {
-            setEmoji('😴');
-            const time = getCurrentTime();
-            setMessage(`Hello, Ma'am! Welcome back! The time now is ${time}. You're supposed to be sleeping. Remember to rest, or you'll turn into a zombie tomorrow!`);
-            clearButtons();
-        }
+    function getTimeOfDay() {
+        const hour = new Date().getHours();
+        
+        // Sleep Time: 10 PM - 12 AM and 5 AM - 1 AM
+        if (hour >= 22 || hour < 1 || (hour >= 5 && hour < 10)) return 'sleep';
+        
+        // Lunch Time: 1 AM - 5 AM
+        if (hour >= 1 && hour < 5) return 'lunch';
+        
+        // Reading Time: 3 AM - 4 AM
+        if (hour >= 3 && hour < 4) return 'reading';
+        
+        return 'other';
+    }
 
-        function handleLunchTime() {
-            setEmoji('🍽️');
-            const time = getCurrentTime();
-            setMessage(`Hello, Ma'am! The time is ${time}. I'm assuming you already ate your food. If not, go eat your food and appreciate your blessings.`);
-            clearButtons();
+    // Lunch Time
+    function handleLunchTime() {
+        setEmoji('🍽️');
+        const time = getCurrentTime();
+        setMessage(`Hello, Ma'am! The time is ${time}. It's lunch time. If you haven't eaten yet, go enjoy your food and be thankful.`);
+        clearButtons();
+        setTimeout(() => {
             addButton('Not yet', handleNotYet);
             addButton('I already ate', handleAlreadyAte);
-        }
+        }, 1000);
+    }
 
-        function handleReadingTime() {
-            setEmoji('📚');
-            const time = getCurrentTime();
-            setMessage(`Hello, Ma'am! It's ${time}! It's time to practice reading now — grab your book and read for a few minutes so your brain stays strong!`);
-            clearButtons();
-        }
+    // Reading Time
+    function handleReadingTime() {
+        setEmoji('📚');
+        const time = getCurrentTime();
+        setMessage(`Hello, Ma'am! It's ${time}! It's time to practice reading now. Grab your book and read for a few minutes so your brain stays strong!`);
+        clearButtons();
+        setTimeout(() => {
+            addButton('Start Reading Session', startReadingSession);
+        }, 2000);
+    }
 
-        function handleNotYet() {
-            setEmoji('😢');
-            clearButtons();
-            
-            // Show sad child image
-            const imgContainer = document.getElementById('imageContainer');
-            imgContainer.innerHTML = '<img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400" alt="Sad child">';
-            showElement('imageContainer');
-            
-            setMessage("She is hungry, and her mother and father abandoned her. She's going to starve to death… but other kids like you don't eat.");
-            
-            setTimeout(() => {
-                hideElement('imageContainer');
-                setEmoji('😊');
-                setMessage("Now go eat your food and be happy that you have it.");
-                setTimeout(() => {
-                    proceedToBehavior();
-                }, 3000);
-            }, 5000);
-        }
+    function startReadingSession() {
+        setEmoji('📖');
+        setMessage("Great! Reading makes you smarter every day. Take your time and enjoy your book!");
+        clearButtons();
+        setTimeout(() => {
+            proceedToBehavior();
+        }, 3000);
+    }
 
-        function handleAlreadyAte() {
-            setEmoji('😄');
-            setMessage("That's good!");
-            clearButtons();
-            
-            setTimeout(() => {
-                addButton('Soda Pop (YouTube)', showSodaPop);
-                addButton('Random Facts', showRandomFact);
-            }, 2000);
-        }
-
-        function showSodaPop() {
-            clearButtons();
-            const videoContainer = document.getElementById('videoContainer');
-            videoContainer.innerHTML = '<iframe src="https://www.youtube.com/embed/gPbh6Ru7VVM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
-            showElement('videoContainer');
-            setMessage("Enjoy the music!");
-            
-            setTimeout(() => {
-                hideElement('videoContainer');
-                addButton("Let's Play!", startMathGame);
-            }, 3000);
-        }
-
-        function showRandomFact() {
-            const facts = [
-                "Did you know? Honey never spoils! Archaeologists found 3000-year-old honey in Egyptian tombs and it was still good to eat!",
-                "A group of flamingos is called a 'flamboyance'! Isn't that fancy?",
-                "Butterflies taste with their feet! They step on their food to see if it's yummy.",
-                "An octopus has three hearts! Two pump blood to the gills, and one pumps it to the body.",
-                "Bananas are berries, but strawberries aren't! Science is surprising!",
-                "A baby elephant can weigh up to 200 pounds when it's born!",
-                "The shortest war in history lasted only 38 minutes between Britain and Zanzibar!",
-                "Some cats are allergic to humans, just like humans can be allergic to cats!"
-            ];
-            
-            const randomFact = facts[Math.floor(Math.random() * facts.length)];
-            setEmoji('🤓');
-            setMessage(randomFact);
-            clearButtons();
-            
-            setTimeout(() => {
-                addButton("Let's Play!", startMathGame);
-            }, 3000);
-        }
-
-        function startMathGame() {
-            setEmoji('🎮');
-            clearButtons();
-            
-            const operations = [
-                { a: 5, b: 5, op: '+', answer: 10 },
-                { a: 3, b: 2, op: '×', answer: 6 },
-                { a: 10, b: 2, op: '-', answer: 8 },
-                { a: 8, b: 4, op: '+', answer: 12 },
-                { a: 7, b: 3, op: '-', answer: 4 },
-                { a: 4, b: 3, op: '×', answer: 12 }
-            ];
-            
-            mathQuestion = operations[Math.floor(Math.random() * operations.length)];
-            setMessage(`Let's play math! What is ${mathQuestion.a} ${mathQuestion.op} ${mathQuestion.b}?`);
-            showElement('inputContainer');
-        }
-
-        function checkAnswer() {
-            const userAnswer = parseInt(document.getElementById('answerInput').value);
-            
-            if (userAnswer === mathQuestion.answer) {
-                setEmoji('🎉');
-                setMessage("Correct! Great job!");
-                hideElement('inputContainer');
-                document.getElementById('answerInput').value = '';
-                
-                setTimeout(() => {
-                    proceedToBehavior();
-                }, 2000);
-            } else {
-                setEmoji('🤔');
-                setMessage(`Not quite! Try again. What is ${mathQuestion.a} ${mathQuestion.op} ${mathQuestion.b}?`);
-            }
-        }
-
-        function proceedToBehavior() {
-            setEmoji('🤔');
-            setMessage("If you want something from your parents, what will you do?");
-            clearButtons();
-            addButton('Get angry and shout at them 😡', handleShout);
-            addButton('Say please, can you get me something? 😊', handlePolite);
-        }
-
-        function handleShout() {
-            setEmoji('😔');
-            setMessage("Oh no! Shouting and getting angry isn't kind. It makes everyone feel sad and hurt. When we're angry, it's hard for others to want to help us. Remember, being kind and respectful is always the better choice!");
-            clearButtons();
-            
-            setTimeout(() => {
-                setEmoji('😊');
-                setMessage("Let's try to be kind and patient with the people we love!");
-            }, 4000);
-        }
-
-        function handlePolite() {
+    function handleNotYet() {
+        setEmoji('😢');
+        clearButtons();
+        const imgContainer = document.getElementById('imageContainer');
+        imgContainer.innerHTML = '<img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&q=80" alt="Hungry child">';
+        showElement('imageContainer');
+        setMessage("She is hungry, but you have food. Now go eat and be grateful!");
+        setTimeout(() => {
+            hideElement('imageContainer');
             setEmoji('😊');
-            setMessage("Excellent! You're so polite and kind! When we ask nicely and say 'please,' people are happy to help us. Being respectful and patient shows that we care about others' feelings. Keep being wonderful!");
+            setMessage("Enjoy your meal!");
+            setTimeout(() => {
+                proceedToBehavior();
+            }, 3000);
+        }, 6000);
+    }
+
+    function handleAlreadyAte() {
+        setEmoji('😄');
+        setMessage("That's good!");
+        clearButtons();
+        setTimeout(() => {
+            setEmoji('🎮');
+            setMessage("What would you like to do now?");
+            addButton('🎵 Soda Pop (YouTube)', showSodaPop);
+            addButton('🧠 Random Facts', showRandomFact);
+            addButton('🎯 Let\'s Play Math!', startMathGame);
+        }, 2000);
+    }
+
+    function showSodaPop() {
+        clearButtons();
+        setEmoji('🎵');
+        const videoContainer = document.getElementById('videoContainer');
+        videoContainer.innerHTML = '<iframe src="https://www.youtube.com/embed/gPbh6Ru7VVM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+        showElement('videoContainer');
+        setMessage("Enjoy the music! Dance along if you want!");
+        setTimeout(() => {
+            addButton('Continue', () => {
+                hideElement('videoContainer');
+                proceedToBehavior();
+            });
+        }, 3000);
+    }
+
+    function showRandomFact() {
+        const facts = [
+            "Did you know? Honey never spoils!",
+            "A group of flamingos is called a 'flamboyance'!",
+            "Butterflies taste with their feet!",
+            "An octopus has three hearts!",
+            "Bananas are berries, but strawberries aren't!",
+            "A baby elephant can weigh up to 200 pounds when it's born!",
+            "The shortest war in history lasted only 38 minutes!",
+            "Some cats are allergic to humans!",
+            "A snail can sleep for 3 years!",
+            "Dolphins have names for each other!",
+            "The Great Wall of China is so long, it could wrap around the Earth more than 5 times!",
+            "Your nose can remember 50,000 different smells!",
+            "A hummingbird's heart beats more than 1,000 times per minute!",
+            "Polar bears have black skin under their white fur!"
+        ];
+        const randomFact = facts[Math.floor(Math.random() * facts.length)];
+        setEmoji('🤓');
+        setMessage(randomFact);
+        clearButtons();
+        setTimeout(() => {
+            addButton('Tell me another fact!', showRandomFact);
+            addButton('Let\'s do something else', handleAlreadyAte);
+        }, 3000);
+    }
+
+    function startMathGame() {
+        setEmoji('🎮');
+        clearButtons();
+        const operations = [
+            { a: 5, b: 5, op: '+', answer: 10, display: '5 + 5' },
+            { a: 3, b: 2, op: '×', answer: 6, display: '3 × 2' },
+            { a: 10, b: 2, op: '-', answer: 8, display: '10 - 2' },
+            { a: 8, b: 4, op: '+', answer: 12, display: '8 + 4' },
+            { a: 7, b: 3, op: '-', answer: 4, display: '7 - 3' },
+            { a: 4, b: 3, op: '×', answer: 12, display: '4 × 3' },
+            { a: 6, b: 2, op: '×', answer: 12, display: '6 × 2' },
+            { a: 15, b: 5, op: '-', answer: 10, display: '15 - 5' },
+            { a: 9, b: 3, op: '+', answer: 12, display: '9 + 3' },
+            { a: 2, b: 4, op: '×', answer: 8, display: '2 × 4' }
+        ];
+        mathQuestion = operations[Math.floor(Math.random() * operations.length)];
+        setMessage(`Let's play math! What is ${mathQuestion.display}?`);
+        showElement('inputContainer');
+        document.getElementById('answerInput').focus();
+    }
+
+    function checkAnswer() {
+        const userAnswer = parseInt(document.getElementById('answerInput').value);
+        if (userAnswer === mathQuestion.answer) {
+            setEmoji('🎉');
+            setMessage(`Correct! ${mathQuestion.display} = ${mathQuestion.answer}! You're so smart!`);
+            hideElement('inputContainer');
+            document.getElementById('answerInput').value = '';
             clearButtons();
+            setTimeout(() => {
+                addButton('Play Again!', startMathGame);
+                addButton('Continue', proceedToBehavior);
+            }, 2000);
+        } else {
+            setEmoji('🤔');
+            setMessage(`Not quite! Try again. What is ${mathQuestion.display}?`);
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').focus();
         }
+    }
 
-        // Initialize based on time
-        async function init() {
-            // Load voices first
-            await loadVoices();
-            
-            const timeOfDay = getTimeOfDay();
-            
-            switch(timeOfDay) {
-                case 'sleep':
-                    handleSleepTime();
-                    break;
-                case 'lunch':
-                    handleLunchTime();
-                    break;
-                case 'reading':
-                    handleReadingTime();
-                    break;
-                default:
-                    setEmoji('😊');
-                    const time = getCurrentTime();
-                    setMessage(`Hello, Ma'am! Welcome! The time is ${time}. Have a wonderful day!`);
-            }
+    function proceedToBehavior() {
+        hideElement('inputContainer');
+        hideElement('videoContainer');
+        setEmoji('🤔');
+        setMessage("If you want something from your parents, what will you do?");
+        clearButtons();
+        setTimeout(() => {
+            addButton('😡 Get angry and shout at them', handleShout);
+            addButton('😊 Say please, can you get me something?', handlePolite);
+        }, 1000);
+    }
+
+    function handleShout() {
+        setEmoji('😔');
+        setMessage("Oh no! Shouting isn't kind. Let's be patient and polite.");
+        clearButtons();
+        setTimeout(() => {
+            setEmoji('💕');
+            setMessage("Being kind and respectful is always better!");
+            setTimeout(() => {
+                addButton('I understand now', showFinalMessage);
+            }, 3000);
+        }, 5000);
+    }
+
+    function handlePolite() {
+        setEmoji('🌟');
+        setMessage("Excellent! Being polite makes everyone happy.");
+        clearButtons();
+        setTimeout(() => {
+            addButton('Thank you, Maia!', showFinalMessage);
+        }, 3000);
+    }
+
+    function showFinalMessage() {
+        setEmoji('😊');
+        setMessage("You did great today! Eat well, sleep on time, read, and always be kind!");
+        clearButtons();
+        setTimeout(() => {
+            addButton('Start Over', init);
+        }, 3000);
+    }
+
+    async function init() {
+        hideElement('inputContainer');
+        hideElement('videoContainer');
+        hideElement('imageContainer');
+        clearButtons();
+        await loadVoices();
+        const timeOfDay = getTimeOfDay();
+        switch(timeOfDay) {
+            case 'sleep':
+                setEmoji('😴');
+                setMessage("Hello, Ma'am! It's sleep time. Rest well!");
+                break;
+            case 'lunch':
+                handleLunchTime();
+                break;
+            case 'reading':
+                handleReadingTime();
+                break;
+            default:
+                setEmoji('😊');
+                const time = getCurrentTime();
+                setMessage(`Hello, Ma'am! Welcome! The time is ${time}. Have a wonderful day!`);
+                setTimeout(() => {
+                    addButton('Let\'s Start Learning!', handleLunchTime);
+                }, 2000);
         }
+    }
 
-        // Start when page loads
-        window.onload = init;
-    </script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const input = document.getElementById('answerInput');
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkAnswer();
+        });
+    });
+
+    window.onload = init;
+</script>
+
 </body>
 </html>
