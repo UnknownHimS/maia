@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maia's Learning Assistant</title>
+    <title>Terminal Assistant</title>
     <style>
         * {
             margin: 0;
@@ -12,564 +12,523 @@
         }
 
         body {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            background: #0a0e27;
-            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            position: relative;
+        }
+
+        .chat-container {
+            background: #1a1a1a;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
         }
 
-        /* Animated space background */
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(2px 2px at 20% 30%, white, transparent),
-                radial-gradient(2px 2px at 60% 70%, white, transparent),
-                radial-gradient(1px 1px at 50% 50%, white, transparent),
-                radial-gradient(1px 1px at 80% 10%, white, transparent),
-                radial-gradient(2px 2px at 90% 60%, white, transparent),
-                radial-gradient(1px 1px at 33% 80%, white, transparent),
-                radial-gradient(1px 1px at 15% 75%, white, transparent);
-            background-size: 200% 200%;
-            animation: twinkle 8s ease-in-out infinite;
-            opacity: 0.6;
+        .chat-header {
+            background: #0d0d0d;
+            color: #00ff00;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #00ff00;
         }
 
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 0.9; }
+        .chat-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
-        body::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: 
-                radial-gradient(ellipse at 20% 30%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 70%, rgba(30, 144, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 40% 80%, rgba(255, 20, 147, 0.1) 0%, transparent 50%);
-            animation: drift 20s ease-in-out infinite;
+        .terminal-prefix {
+            color: #00ff00;
+            margin-right: 5px;
         }
 
-        @keyframes drift {
-            0%, 100% { transform: translate(0, 0); }
-            33% { transform: translate(5%, 5%); }
-            66% { transform: translate(-3%, 3%); }
+        .status-badge {
+            font-size: 12px;
+            color: #00ff00;
+            letter-spacing: 1px;
         }
 
-        .container {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(100, 150, 255, 0.3);
-            border-radius: 30px;
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
-                        0 0 40px rgba(100, 150, 255, 0.1);
+        .notification-banner {
+            background: #ffaa00;
+            color: #0a0a0a;
+            padding: 12px 20px;
             text-align: center;
-            position: relative;
-            z-index: 1;
+            font-weight: bold;
+            font-size: 14px;
+            display: none;
+            border-bottom: 2px solid #00ff00;
         }
 
-        .emoji {
-            font-size: 120px;
-            margin: 20px 0;
-            animation: float 3s ease-in-out infinite;
-            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+        .notification-banner.active {
+            display: block;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        .message {
-            font-size: 20px;
-            color: #e0e7ff;
-            margin: 20px 0;
-            line-height: 1.6;
-            text-shadow: 0 0 10px rgba(224, 231, 255, 0.3);
-        }
-
-        .buttons {
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 15px;
-            margin: 30px 0;
         }
 
-        button {
-            padding: 15px 30px;
-            font-size: 18px;
-            border: 2px solid rgba(100, 150, 255, 0.5);
-            border-radius: 15px;
-            background: linear-gradient(135deg, rgba(30, 58, 138, 0.8) 0%, rgba(30, 144, 255, 0.6) 100%);
-            color: white;
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #0d0d0d;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #00ff00;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border: 1px solid #00ff00;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .message.ai {
+            background: #0d0d0d;
+            color: #00ff00;
+            align-self: flex-start;
+            border-left: 3px solid #00ff00;
+        }
+
+        .message.user {
+            background: #003300;
+            color: #00ff00;
+            align-self: flex-end;
+            border-right: 3px solid #00ff00;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .choice-btn {
+            background: #0d0d0d;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 8px 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            box-shadow: 0 5px 15px rgba(30, 144, 255, 0.3);
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            transition: all 0.3s;
         }
 
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(30, 144, 255, 0.5);
-            background: linear-gradient(135deg, rgba(30, 58, 138, 1) 0%, rgba(30, 144, 255, 0.8) 100%);
+        .choice-btn:hover {
+            background: #00ff00;
+            color: #0a0a0a;
         }
 
-        button:active {
-            transform: translateY(0);
-        }
-
-        .image-container {
-            margin: 20px 0;
-        }
-
-        .image-container img {
-            max-width: 100%;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            border: 2px solid rgba(100, 150, 255, 0.3);
-        }
-
-        .input-container {
-            margin: 20px 0;
-        }
-
-        input[type="text"] {
-            padding: 15px;
-            font-size: 18px;
-            border: 2px solid rgba(100, 150, 255, 0.5);
-            border-radius: 15px;
-            width: 100%;
-            max-width: 300px;
-            text-align: center;
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            background: rgba(15, 23, 42, 0.6);
-            color: #e0e7ff;
-            margin-bottom: 10px;
-        }
-
-        input[type="text"]::placeholder {
-            color: rgba(224, 231, 255, 0.5);
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: rgba(30, 144, 255, 1);
-            box-shadow: 0 0 15px rgba(30, 144, 255, 0.5);
-        }
-
-        .video-container {
-            margin: 20px 0;
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
-            border-radius: 15px;
-            border: 2px solid rgba(100, 150, 255, 0.3);
-        }
-
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 15px;
-        }
-
-        .hidden {
+        .typing-indicator {
             display: none;
+            align-self: flex-start;
+            padding: 10px 15px;
+            background: #0d0d0d;
+            border: 1px solid #00ff00;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+            gap: 5px;
+        }
+
+        .typing-text {
+            color: #00ff00;
+            font-size: 14px;
+        }
+
+        .chat-input-area {
+            padding: 15px 20px;
+            background: #0d0d0d;
+            border-top: 2px solid #00ff00;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #00ff00;
+            background: #1a1a1a;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .chat-input::placeholder {
+            color: #006600;
+        }
+
+        .send-btn {
+            background: #0d0d0d;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            background: #00ff00;
+            color: #0a0a0a;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 100vh;
+                border: none;
+                border-radius: 0;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="emoji" id="emoji">😊</div>
-        <div class="message" id="message">Hello, Ma'am! Welcome!</div>
-        <div class="buttons" id="buttons"></div>
-        <div class="image-container hidden" id="imageContainer"></div>
-        <div class="video-container hidden" id="videoContainer"></div>
-        <div class="input-container hidden" id="inputContainer">
-            <input type="text" id="answerInput" placeholder="Type your answer here">
-            <button onclick="checkAnswer()">Submit Answer</button>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2><span class="terminal-prefix">$</span> TERMINAL ASSISTANT</h2>
+            <div class="status-badge" id="timeDisplay"></div>
+        </div>
+        
+        <div class="notification-banner" id="notification"></div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message ai">
+                <span class="terminal-prefix">></span> SYSTEM INITIALIZED. TYPE 'HELP' FOR AVAILABLE COMMANDS.
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <span class="typing-text">PROCESSING...</span>
+        </div>
+        
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" class="chat-input" placeholder="Enter command..." />
+            <button id="sendBtn" class="send-btn">SEND</button>
         </div>
     </div>
 
-<script>
-    let mathQuestion = {};
-    let speechSynth = window.speechSynthesis;
-    let currentUtterance = null;
-    let voicesLoaded = false;
+    <script>
+        // ============================================
+        // CONFIGURATION: EASY TO UNDERSTAND TRIGGERS
+        // ============================================
+        
+        const triggerWords = [
+            {
+                word: "hello",
+                responses: [
+                    "> GREETING DETECTED. HELLO, USER.",
+                    "> HI THERE. SYSTEM READY.",
+                    "> HELLO. HOW CAN I ASSIST YOU?"
+                ],
+                choices: [
+                    { text: "Hi", response: "> OH HELLO! GLAD TO SEE YOU ONLINE. 😊" },
+                    { text: "Hello", response: "> GREETINGS CONFIRMED. WHAT DO YOU NEED TODAY?" },
+                    { text: "Hey", response: "> HEY! TERMINAL IS READY FOR YOUR COMMANDS." }
+                ]
+            },
+            {
+                word: "help",
+                responses: ["> DISPLAYING AVAILABLE COMMANDS..."],
+                choices: [
+                    { text: "What can you do?", response: "> I CAN RESPOND TO TRIGGERS, SEND TIME NOTIFICATIONS, AND CHAT WITH YOU!" },
+                    { text: "Show examples", response: "> TRY: 'HELLO', 'HELP', 'BYE', 'STATUS', 'TIME' OR JUST CHAT!" },
+                    { text: "Tell joke", response: "> WHY DID THE COMPUTER GO TO THERAPY? IT HAD TOO MANY UNRESOLVED ISSUES! 😄" }
+                ]
+            },
+            {
+                word: "bye",
+                responses: ["> LOGOUT SEQUENCE INITIATED. GOODBYE USER."],
+                choices: [
+                    { text: "See you", response: "> FAREWELL. SYSTEM STANDBY MODE ACTIVATED." },
+                    { text: "Thanks", response: "> YOU'RE WELCOME. RETURN ANYTIME." }
+                ]
+            },
+            {
+                word: "status",
+                responses: ["> ALL SYSTEMS OPERATIONAL. STATUS: GREEN."],
+                choices: [
+                    { text: "Good", response: "> AFFIRMATIVE. RUNNING AT OPTIMAL PERFORMANCE." },
+                    { text: "Check logs", response: "> LOG DATA: NO ERRORS DETECTED. ALL CLEAR." }
+                ]
+            },
+            {
+                word: "time",
+                responses: ["> ACCESSING SYSTEM CLOCK..."],
+                choices: [
+                    { text: "Show date", response: "> DATE: " + new Date().toDateString() },
+                    { text: "Timezone", response: "> TIMEZONE: " + Intl.DateTimeFormat().resolvedOptions().timeZone }
+                ]
+            }
+        ];
 
-    // Load voices
-    function loadVoices() {
-        return new Promise((resolve) => {
-            let voices = speechSynth.getVoices();
-            if (voices.length > 0) {
-                voicesLoaded = true;
-                resolve(voices);
-            } else {
-                speechSynth.onvoiceschanged = () => {
-                    voices = speechSynth.getVoices();
-                    voicesLoaded = true;
-                    resolve(voices);
-                };
+        // ============================================
+        // TIME-BASED NOTIFICATIONS CONFIGURATION
+        // ============================================
+        
+        const timeNotifications = [
+            { 
+                startHour: 10, 
+                endHour: 12, 
+                message: "⏰ TIME TO EAT! DON'T FORGET YOUR LUNCH!" 
+            },
+            { 
+                startHour: 8, 
+                endHour: 9, 
+                message: "☀️ GOOD MORNING! TERMINAL BOOT SEQUENCE COMPLETE." 
+            },
+            { 
+                startHour: 18, 
+                endHour: 19, 
+                message: "🌆 DINNER TIME! TAKE A BREAK FROM THE TERMINAL." 
+            },
+            { 
+                startHour: 14, 
+                endHour: 15, 
+                message: "☕ COFFEE BREAK RECOMMENDED. STRETCH YOUR LEGS!" 
+            }
+        ];
+
+        // ============================================
+        // DOM ELEMENTS
+        // ============================================
+        
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const notification = document.getElementById('notification');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        let notifiedTimes = new Set();
+
+        // ============================================
+        // TIME UPDATE FUNCTION
+        // ============================================
+        
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false 
+            });
+            const dateStr = now.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: '2-digit',
+                year: 'numeric'
+            });
+            timeDisplay.textContent = `${dateStr} | ${timeStr}`;
+            
+            checkTimeNotifications(now);
+        }
+
+        // ============================================
+        // TIME-BASED NOTIFICATIONS
+        // ============================================
+        
+        function checkTimeNotifications(now) {
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+            const timeKey = `${hour}`;
+            
+            timeNotifications.forEach(notif => {
+                if (hour >= notif.startHour && hour < notif.endHour) {
+                    if (!notifiedTimes.has(timeKey + notif.message)) {
+                        showNotification(notif.message);
+                        notifiedTimes.add(timeKey + notif.message);
+                        
+                        setTimeout(() => {
+                            notifiedTimes.delete(timeKey + notif.message);
+                        }, 3600000);
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // NOTIFICATION BANNER
+        // ============================================
+        
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('active');
+            
+            setTimeout(() => {
+                notification.classList.remove('active');
+            }, 5000);
+        }
+
+        // ============================================
+        // ADD MESSAGE TO CHAT
+        // ============================================
+        
+        function addMessage(text, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+            
+            if (!isUser) {
+                const prefix = document.createElement('span');
+                prefix.className = 'terminal-prefix';
+                prefix.textContent = '> ';
+                messageDiv.appendChild(prefix);
+            }
+            
+            const textNode = document.createTextNode(text);
+            messageDiv.appendChild(textNode);
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // ============================================
+        // ADD CHOICE BUTTONS
+        // ============================================
+        
+        function addChoiceButtons(choices) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const buttonGroup = document.createElement('div');
+            buttonGroup.className = 'button-group';
+            
+            choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.textContent = `[ ${choice.text} ]`;
+                btn.onclick = () => handleChoice(choice.response, messageDiv);
+                buttonGroup.appendChild(btn);
+            });
+            
+            messageDiv.appendChild(buttonGroup);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // ============================================
+        // HANDLE CHOICE BUTTON CLICK
+        // ============================================
+        
+        function handleChoice(response, buttonContainer) {
+            buttonContainer.remove();
+            
+            typingIndicator.classList.add('active');
+            
+            setTimeout(() => {
+                typingIndicator.classList.remove('active');
+                addMessage(response, false);
+            }, 800);
+        }
+
+        // ============================================
+        // PROCESS USER INPUT
+        // ============================================
+        
+        function processInput(input) {
+            const lowerInput = input.toLowerCase().trim();
+            
+            // Check for trigger words
+            for (let trigger of triggerWords) {
+                if (lowerInput.includes(trigger.word)) {
+                    typingIndicator.classList.add('active');
+                    
+                    setTimeout(() => {
+                        typingIndicator.classList.remove('active');
+                        
+                        // Pick a random response
+                        const randomResponse = trigger.responses[
+                            Math.floor(Math.random() * trigger.responses.length)
+                        ];
+                        addMessage(randomResponse, false);
+                        
+                        // Add choice buttons if available
+                        if (trigger.choices && trigger.choices.length > 0) {
+                            setTimeout(() => {
+                                addChoiceButtons(trigger.choices);
+                            }, 300);
+                        }
+                    }, 1000);
+                    
+                    return;
+                }
+            }
+            
+            // Default response if no trigger found
+            typingIndicator.classList.add('active');
+            setTimeout(() => {
+                typingIndicator.classList.remove('active');
+                addMessage("COMMAND NOT RECOGNIZED. TYPE 'HELP' FOR AVAILABLE COMMANDS.", false);
+            }, 1000);
+        }
+
+        // ============================================
+        // SEND MESSAGE
+        // ============================================
+        
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (text === '') return;
+            
+            addMessage(text, true);
+            chatInput.value = '';
+            
+            setTimeout(() => {
+                processInput(text);
+            }, 300);
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        
+        sendBtn.addEventListener('click', sendMessage);
+        
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
             }
         });
-    }
 
-    async function speak(text) {
-        // Cancel any ongoing speech
-        speechSynth.cancel();
-
-        // Wait for voices to load if not loaded yet
-        if (!voicesLoaded) {
-            await loadVoices();
-        }
-
-        currentUtterance = new SpeechSynthesisUtterance(text);
-        currentUtterance.rate = 0.9;
-        currentUtterance.pitch = 1.3;
+        // ============================================
+        // INITIALIZE
+        // ============================================
         
-        // Try to select a female voice
-        let voices = speechSynth.getVoices();
-        let femaleVoice = voices.find(voice => 
-            voice.name.toLowerCase().includes('female') || 
-            voice.name.includes('Samantha') ||
-            voice.name.includes('Victoria') ||
-            voice.name.includes('Zira') ||
-            voice.name.includes('Google UK English Female') ||
-            voice.name.includes('Microsoft Zira') ||
-            voice.name.includes('Karen') ||
-            (voice.lang.includes('en') && voice.name.includes('2'))
-        );
+        updateTime();
+        setInterval(updateTime, 1000);
         
-        if (femaleVoice) {
-            currentUtterance.voice = femaleVoice;
-        }
-        
-        speechSynth.speak(currentUtterance);
-    }
-
-    function setEmoji(emoji) {
-        document.getElementById('emoji').textContent = emoji;
-    }
-
-    function setMessage(text) {
-        document.getElementById('message').textContent = text;
-        speak(text);
-    }
-
-    function clearButtons() {
-        document.getElementById('buttons').innerHTML = '';
-    }
-
-    function addButton(text, callback) {
-        const btn = document.createElement('button');
-        btn.textContent = text;
-        btn.onclick = callback;
-        document.getElementById('buttons').appendChild(btn);
-    }
-
-    function hideElement(id) {
-        document.getElementById(id).classList.add('hidden');
-    }
-
-    function showElement(id) {
-        document.getElementById(id).classList.remove('hidden');
-    }
-
-    function getCurrentTime() {
-        const now = new Date();
-        let hours = now.getHours();
-        let minutes = now.getMinutes();
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12 || 12;
-        minutes = minutes < 10 ? '0' + minutes : minutes;
-        return `${hours}:${minutes} ${ampm}`;
-    }
-
-    function getTimeOfDay() {
-        const hour = new Date().getHours();
-        
-        // Sleep Time: 10 PM - 12 AM and 5 AM - 1 AM
-        if (hour >= 22 || hour < 1 || (hour >= 5 && hour < 10)) return 'sleep';
-        
-        // Lunch Time: 1 AM - 5 AM
-        if (hour >= 1 && hour < 5) return 'lunch';
-        
-        // Reading Time: 3 AM - 4 AM
-        if (hour >= 3 && hour < 4) return 'reading';
-        
-        return 'other';
-    }
-
-    // Lunch Time
-    function handleLunchTime() {
-        setEmoji('🍽️');
-        const time = getCurrentTime();
-        setMessage(`Hello, Ma'am! The time is ${time}. It's lunch time. If you haven't eaten yet, go enjoy your food and be thankful.`);
-        clearButtons();
+        // Boot message
         setTimeout(() => {
-            addButton('Not yet', handleNotYet);
-            addButton('I already ate', handleAlreadyAte);
-        }, 5000);
-    }
-
-    // Reading Time
-    function handleReadingTime() {
-        setEmoji('📚');
-        const time = getCurrentTime();
-        setMessage(`Hello, Ma'am! It's ${time}! It's time to practice reading now. Grab your book and read for a few minutes so your brain stays strong!`);
-        clearButtons();
-        setTimeout(() => {
-            addButton('Start Reading Session', startReadingSession);
-        }, 5000);
-    }
-
-    function startReadingSession() {
-        setEmoji('📖');
-        setMessage("Great! Reading makes you smarter every day. Take your time and enjoy your book!");
-        clearButtons();
-        setTimeout(() => {
-            proceedToBehavior();
-        }, 5000);
-    }
-
-    function handleNotYet() {
-        setEmoji('😢');
-        clearButtons();
-        const imgContainer = document.getElementById('imageContainer');
-        imgContainer.innerHTML = '<img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&q=80" alt="Hungry child">';
-        showElement('imageContainer');
-        setMessage("She is hungry, but you have food. Now go eat and be grateful!");
-        setTimeout(() => {
-            hideElement('imageContainer');
-            setEmoji('😊');
-            setMessage("Enjoy your meal!");
-            setTimeout(() => {
-                proceedToBehavior();
-            }, 3000);
-        }, 6000);
-    }
-
-    function handleAlreadyAte() {
-        setEmoji('😄');
-        setMessage("That's good!");
-        clearButtons();
-        setTimeout(() => {
-            setEmoji('🎮');
-            setMessage("What would you like to do now?");
-            addButton('🎵 Soda Pop (YouTube)', showSodaPop);
-            addButton('🧠 Random Facts', showRandomFact);
-            addButton('🎯 Let\'s Play Math!', startMathGame);
-        }, 10000);
-    }
-
-    function showSodaPop() {
-        clearButtons();
-        setEmoji('🎵');
-        const videoContainer = document.getElementById('videoContainer');
-        videoContainer.innerHTML = '<iframe src="https://www.youtube.com/embed/gPbh6Ru7VVM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
-        showElement('videoContainer');
-        setMessage("Enjoy the music! Dance along if you want!");
-        setTimeout(() => {
-            addButton('Continue', () => {
-                hideElement('videoContainer');
-                proceedToBehavior();
-            });
-        }, 3000);
-    }
-
-    function showRandomFact() {
-        const facts = [
-            "Did you know? Honey never spoils!",
-            "A group of flamingos is called a 'flamboyance'!",
-            "Butterflies taste with their feet!",
-            "An octopus has three hearts!",
-            "Bananas are berries, but strawberries aren't!",
-            "A baby elephant can weigh up to 200 pounds when it's born!",
-            "The shortest war in history lasted only 38 minutes!",
-            "Some cats are allergic to humans!",
-            "A snail can sleep for 3 years!",
-            "Dolphins have names for each other!",
-            "The Great Wall of China is so long, it could wrap around the Earth more than 5 times!",
-            "Your nose can remember 50,000 different smells!",
-            "A hummingbird's heart beats more than 1,000 times per minute!",
-            "Polar bears have black skin under their white fur!"
-        ];
-        const randomFact = facts[Math.floor(Math.random() * facts.length)];
-        setEmoji('🤓');
-        setMessage(randomFact);
-        clearButtons();
-        setTimeout(() => {
-            addButton('Tell me another fact!', showRandomFact);
-            addButton('Let\'s do something else', handleAlreadyAte);
-        }, 3000);
-    }
-
-  function startMathGame() {
-    setEmoji('🎮');
-    clearButtons();
-
-    // Decide randomly if this will be a math or behavior question
-    const isMathQuestion = Math.random() < 0.7; // 70% chance math, 30% behavior
-
-    if (isMathQuestion) {
-        // Generate random math question
-        const a = Math.floor(Math.random() * 20) + 1; // 1 to 20
-        const b = Math.floor(Math.random() * 20) + 1; // 1 to 20
-        const operations = [
-            { op: '+', func: (x, y) => x + y },
-            { op: '-', func: (x, y) => x - y },
-            { op: '×', func: (x, y) => x * y }
-        ];
-        const operation = operations[Math.floor(Math.random() * operations.length)];
-        mathQuestion = {
-            a: a,
-            b: b,
-            op: operation.op,
-            answer: operation.func(a, b),
-            display: `${a} ${operation.op} ${b}`
-        };
-
-        setMessage(`Let's play math! What is ${mathQuestion.display}?`);
-        showElement('inputContainer');
-        document.getElementById('answerInput').focus();
-    } else {
-        // Behavior/Empathy question
-        setEmoji('🤔');
-        setMessage("If you saw one of your classmates crying, what would you do?");
-        clearButtons();
-        addButton('Ignore', () => {
-            setEmoji('😔');
-            setMessage("Oh no! Ignoring someone in need isn't kind. Try to be empathetic next time.");
-            setTimeout(() => startMathGame(), 10000);
-        });
-        addButton('Help', () => {
-            setEmoji('😊');
-            setMessage("Great choice! Helping others shows kindness and empathy. Keep it up!");
-            setTimeout(() => startMathGame(), 6000);
-        });
-    }
-}
-
-
-    function checkAnswer() {
-        const userAnswer = parseInt(document.getElementById('answerInput').value);
-        if (userAnswer === mathQuestion.answer) {
-            setEmoji('🎉');
-            setMessage(`Correct! ${mathQuestion.display} = ${mathQuestion.answer}! You're so smart!`);
-            hideElement('inputContainer');
-            document.getElementById('answerInput').value = '';
-            clearButtons();
-            setTimeout(() => {
-                addButton('Play Again!', startMathGame);
-                addButton('Continue', proceedToBehavior);
-            }, 2000);
-        } else {
-            setEmoji('🤔');
-            setMessage(`Not quite! Try again. What is ${mathQuestion.display}?`);
-            document.getElementById('answerInput').value = '';
-            document.getElementById('answerInput').focus();
-        }
-    }
-
-    function proceedToBehavior() {
-        hideElement('inputContainer');
-        hideElement('videoContainer');
-        setEmoji('🤔');
-        setMessage("If you want something from your parents, what will you do?");
-        clearButtons();
-        setTimeout(() => {
-            addButton('😡 Get angry and shout at them', handleShout);
-            addButton('😊 Say please, can you get me something?', handlePolite);
-        }, 1000);
-    }
-
-    function handleShout() {
-        setEmoji('😔');
-        setMessage("Oh no! Shouting isn't kind. Let's be patient and polite.");
-        clearButtons();
-        setTimeout(() => {
-            setEmoji('💕');
-            setMessage("Being kind and respectful is always better!");
-            setTimeout(() => {
-                addButton('I understand now', showFinalMessage);
-            }, 3000);
-        }, 5000);
-    }
-
-    function handlePolite() {
-        setEmoji('🌟');
-        setMessage("Excellent! Being polite makes everyone happy.");
-        clearButtons();
-        setTimeout(() => {
-            addButton('Thank you, Maia!', showFinalMessage);
-        }, 6000);
-    }
-
-    function showFinalMessage() {
-        setEmoji('😊');
-        setMessage("You did great today! Eat well, sleep on time, read, and always be kind!");
-        clearButtons();
-        setTimeout(() => {
-            addButton('Start Over', init);
-        }, 6000);
-    }
-
-    async function init() {
-        hideElement('inputContainer');
-        hideElement('videoContainer');
-        hideElement('imageContainer');
-        clearButtons();
-        await loadVoices();
-        const timeOfDay = getTimeOfDay();
-        switch(timeOfDay) {
-            case 'sleep':
-                setEmoji('😴');
-                setMessage("Hello, Ma'am! It's sleep time. Rest well!");
-                break;
-            case 'lunch':
-                handleLunchTime();
-                break;
-            case 'reading':
-                handleReadingTime();
-                break;
-            default:
-                setEmoji('😊');
-                const time = getCurrentTime();
-                setMessage(`Hello, Ma'am! Welcome! The time is ${time}. Have a wonderful day!`);
-                setTimeout(() => {
-                    addButton('Let\'s Start Learning!', handleLunchTime);
-                }, 10000);
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const input = document.getElementById('answerInput');
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') checkAnswer();
-        });
-    });
-
-    window.onload = init;
-</script>
-
+            addMessage("READY FOR INPUT.", false);
+        }, 500);
+    </script>
 </body>
 </html>
