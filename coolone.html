@@ -56,12 +56,6 @@
             margin-right: 5px;
         }
 
-        .status-badge {
-            font-size: 12px;
-            color: #00ff00;
-            letter-spacing: 1px;
-        }
-
         .header-controls {
             display: flex;
             gap: 10px;
@@ -127,6 +121,12 @@
         .link-btn:hover {
             background: #00ff00;
             color: #0a0a0a;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            color: #00ff00;
+            letter-spacing: 1px;
         }
 
         .notification-banner {
@@ -269,6 +269,35 @@
             color: #0a0a0a;
         }
 
+        .mic-btn {
+            background: #0d0d0d;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            transition: all 0.3s;
+            min-width: 50px;
+        }
+
+        .mic-btn:hover {
+            background: #00ff00;
+            color: #0a0a0a;
+        }
+
+        .mic-btn.listening {
+            background: #ff0000;
+            border-color: #ff0000;
+            color: #fff;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
         @media (max-width: 768px) {
             .chat-container {
                 height: 100vh;
@@ -286,7 +315,7 @@
                 <a href="https://your-other-app.com" target="_blank" class="link-btn">🔗 LINK</a>
                 <div class="toggle-container">
                     <span class="toggle-label">SPEECH</span>
-                    <div class="toggle-switch" id="speechToggle">
+                    <div class="toggle-switch active" id="speechToggle">
                         <div class="toggle-slider"></div>
                     </div>
                 </div>
@@ -307,7 +336,8 @@
         </div>
         
         <div class="chat-input-area">
-            <input type="text" id="chatInput" class="chat-input" placeholder="Enter command..." />
+            <button id="micBtn" class="mic-btn">🎤</button>
+            <input type="text" id="chatInput" class="chat-input" placeholder="Enter command or click mic to speak..." />
             <button id="sendBtn" class="send-btn">SEND</button>
         </div>
     </div>
@@ -404,10 +434,73 @@
         const notification = document.getElementById('notification');
         const typingIndicator = document.getElementById('typingIndicator');
         const speechToggle = document.getElementById('speechToggle');
+        const micBtn = document.getElementById('micBtn');
 
         let notifiedTimes = new Set();
-        let speechEnabled = false;
+        let speechEnabled = true; // DEFAULT ON
         let speechSynthesis = window.speechSynthesis;
+        let recognition = null;
+        let isListening = false;
+
+        // ============================================
+        // SPEECH RECOGNITION SETUP
+        // ============================================
+        
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                isListening = true;
+                micBtn.classList.add('listening');
+                micBtn.textContent = '🔴';
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                micBtn.classList.remove('listening');
+                micBtn.textContent = '🎤';
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                chatInput.value = transcript;
+                sendMessage();
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                isListening = false;
+                micBtn.classList.remove('listening');
+                micBtn.textContent = '🎤';
+                
+                if (event.error === 'no-speech') {
+                    addMessage("NO SPEECH DETECTED. PLEASE TRY AGAIN.", false);
+                } else if (event.error === 'not-allowed') {
+                    addMessage("MICROPHONE ACCESS DENIED. PLEASE ENABLE IN BROWSER SETTINGS.", false);
+                }
+            };
+        }
+
+        // ============================================
+        // MICROPHONE BUTTON HANDLER
+        // ============================================
+        
+        micBtn.addEventListener('click', () => {
+            if (!recognition) {
+                addMessage("SPEECH RECOGNITION NOT SUPPORTED IN THIS BROWSER.", false);
+                return;
+            }
+
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        });
 
         // ============================================
         // SPEECH SYNTHESIS FUNCTION
@@ -540,6 +633,11 @@
             
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Auto-speak AI messages when speech is enabled
+            if (!isUser && speechEnabled) {
+                speak(text);
+            }
         }
 
         // ============================================
@@ -657,7 +755,7 @@
         updateTime();
         setInterval(updateTime, 1000);
         
-        // Boot message
+        // Boot message with speech
         setTimeout(() => {
             addMessage("READY FOR INPUT.", false);
         }, 500);
