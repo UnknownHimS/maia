@@ -62,6 +62,73 @@
             letter-spacing: 1px;
         }
 
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 45px;
+            height: 24px;
+            background: #0d0d0d;
+            border: 2px solid #00ff00;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #00ff00;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: #00ff00;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            background: #0a0a0a;
+            transform: translateX(21px);
+        }
+
+        .link-btn {
+            background: #0d0d0d;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .link-btn:hover {
+            background: #00ff00;
+            color: #0a0a0a;
+        }
+
         .notification-banner {
             background: #ffaa00;
             color: #0a0a0a;
@@ -215,7 +282,16 @@
     <div class="chat-container">
         <div class="chat-header">
             <h2><span class="terminal-prefix">$</span> TERMINAL ASSISTANT</h2>
-            <div class="status-badge" id="timeDisplay"></div>
+            <div class="header-controls">
+                <a href="https://your-other-app.com" target="_blank" class="link-btn">🔗 LINK</a>
+                <div class="toggle-container">
+                    <span class="toggle-label">SPEECH</span>
+                    <div class="toggle-switch" id="speechToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div class="status-badge" id="timeDisplay"></div>
+            </div>
         </div>
         
         <div class="notification-banner" id="notification"></div>
@@ -327,8 +403,64 @@
         const timeDisplay = document.getElementById('timeDisplay');
         const notification = document.getElementById('notification');
         const typingIndicator = document.getElementById('typingIndicator');
+        const speechToggle = document.getElementById('speechToggle');
 
         let notifiedTimes = new Set();
+        let speechEnabled = false;
+        let speechSynthesis = window.speechSynthesis;
+
+        // ============================================
+        // SPEECH SYNTHESIS FUNCTION
+        // ============================================
+        
+        function speak(text) {
+            if (!speechEnabled || !speechSynthesis) return;
+            
+            // Cancel any ongoing speech
+            speechSynthesis.cancel();
+            
+            // Clean up text for speech (remove terminal characters)
+            const cleanText = text.replace(/>/g, '').replace(/\[|\]/g, '').trim();
+            
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            
+            // Optional: Use a specific voice if available
+            const voices = speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                // Try to find an English voice
+                const englishVoice = voices.find(v => v.lang.startsWith('en'));
+                if (englishVoice) {
+                    utterance.voice = englishVoice;
+                }
+            }
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        // ============================================
+        // TOGGLE SPEECH
+        // ============================================
+        
+        speechToggle.addEventListener('click', () => {
+            speechEnabled = !speechEnabled;
+            speechToggle.classList.toggle('active', speechEnabled);
+            
+            if (speechEnabled) {
+                speak('Speech enabled');
+            } else {
+                speechSynthesis.cancel();
+            }
+        });
+
+        // Load voices when available
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => {
+                speechSynthesis.getVoices();
+            };
+        }
 
         // ============================================
         // TIME UPDATE FUNCTION
