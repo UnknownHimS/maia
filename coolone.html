@@ -346,28 +346,121 @@
         // ============================================
         // CONFIGURATION: EASY TO UNDERSTAND TRIGGERS
         // ============================================
-        
+
         const triggerWords = [
+            {
+                words: ["who", "friend"],
+                responses: [
+                    "YOU ARE MY FRIEND !"
+                ],
+                choices: []
+            },
+            {
+                word: "learn",
+                responses: ["> LET'S PRACTICE GOOD CHOICES TOGETHER!"],
+                choices: [
+                    { 
+                        response: "> YOU NEED SOMETHING FROM A FRIEND. WHAT DO YOU DO?",
+                        nextChoices: [
+                            { text: "Grab it without asking", response: "> THAT MIGHT MAKE YOUR FRIEND SAD. TRY ASKING POLITELY NEXT TIME." },
+                            { text: "Say 'Please, can you get that for me?'", response: "> GREAT JOB! ASKING POLITELY SHOWS GOOD MANNERS." },
+                            { text: "Wait quietly and hope they notice", response: "> WAITING IS KIND, BUT IT’S OKAY TO ASK POLITELY TOO." }
+                        ]
+                    },
+                    { 
+                        response: "> IT’S LUNCH TIME. WHAT SHOULD YOU DO WHEN YOU’RE FULL?",
+                        nextChoices: [
+                            { text: "Keep eating even if I’m full", response: "> YOUR TUMMY MIGHT HURT. IT’S OKAY TO STOP WHEN YOU’RE FULL." },
+                            { text: "Say 'I’m full, thank you!'", response: "> NICE MANNERS! YOU LISTENED TO YOUR BODY AND SAID THANK YOU." },
+                            { text: "Throw away the food", response: "> OH NO! WE SHOULDN’T WASTE FOOD. NEXT TIME, JUST SAY YOU’RE FULL." }
+                        ]
+                    },
+                    { 
+                        response: "> DO CHILDREN NEED TO EAT LESS OR ENOUGH TO GROW HEALTHY?",
+                        nextChoices: [
+                            { text: "Eat less to stay small", response: "> NOT QUITE! CHILDREN NEED ENOUGH FOOD TO GROW STRONG AND HEALTHY." },
+                            { text: "Eat enough good food", response: "> YES! EATING ENOUGH HEALTHY FOOD HELPS YOU GROW AND HAVE ENERGY." },
+                            { text: "Eat lots of candy", response: "> CANDY IS OKAY SOMETIMES, BUT TOO MUCH ISN’T GOOD FOR YOUR TEETH OR BODY." }
+                        ]
+                    },
+                    { 
+                        response: "> A FRIEND WANTS TO PLAY WITH YOUR TOY. WHAT DO YOU DO?",
+                        nextChoices: [
+                            { text: "Say 'No, it’s mine!'", response: "> SOMETIMES IT’S HARD TO SHARE, BUT SHARING MAKES PLAY MORE FUN." },
+                            { text: "Let them take turns with you", response: "> THAT’S WONDERFUL! TAKING TURNS MAKES EVERYONE HAPPY." },
+                            { text: "Hide the toy", response: "> THAT’S NOT VERY FAIR. MAYBE YOU CAN FIND A WAY TO PLAY TOGETHER!" }
+                        ]
+                    },
+                    { 
+                        response: "> PLAYTIME IS OVER. WHAT DO YOU DO?",
+                        nextChoices: [
+                            { text: "Leave toys on the floor", response: "> THAT MAKES A MESS. CLEANING UP HELPS KEEP THINGS NICE." },
+                            { text: "Put the toys back where they belong", response: "> GOOD JOB! YOU’RE TAKING CARE OF YOUR THINGS." },
+                            { text: "Wait for someone else to clean", response: "> IT’S GOOD TO HELP TOO! CLEANING TOGETHER IS TEAMWORK." }
+                        ]
+                    },
+                    { 
+                        response: "> YOU FEEL UPSET BECAUSE YOU LOST A GAME. WHAT DO YOU DO?",
+                        nextChoices: [
+                            { text: "Yell or cry at others", response: "> IT’S OKAY TO FEEL SAD, BUT HURTING OTHERS ISN’T KIND." },
+                            { text: "Take a deep breath and try again", response: "> GREAT CHOICE! STAYING CALM HELPS YOU FEEL BETTER." },
+                            { text: "Walk away and sit quietly", response: "> THAT’S A GOOD WAY TO CALM DOWN BEFORE TRYING AGAIN." }
+                        ]
+                    }
+                ]
+
+            },
+            {
+                words: ["name", "friend"],
+                responses: [
+                    "> FRIEND NAME IS YOU."
+                ],
+                choices: []
+            },
             {
                 word: "hello",
                 responses: [
-                    "> GREETING DETECTED. HELLO, USER.",
-                    "> HI THERE. SYSTEM READY.",
-                    "> HELLO. HOW CAN I ASSIST YOU?"
+                    "HELLO MA'AM!, HOW CAN I ASSIST YOU TODAY?"
                 ],
                 choices: [
-                    { text: "Hi", response: "> OH HELLO! GLAD TO SEE YOU ONLINE. 😊" },
-                    { text: "Hello", response: "> GREETINGS CONFIRMED. WHAT DO YOU NEED TODAY?" },
-                    { text: "Hey", response: "> HEY! TERMINAL IS READY FOR YOUR COMMANDS." }
+                    { text: "Play Games", response: "> LET'S PLAY! 🎮", trigger: "game" },
+                    { text: "Chat", response: "> GREETINGS CONFIRMED. WHAT DO YOU NEED TODAY?" },
+                    { text: "Help", response: "> TYPE 'HELP' FOR AVAILABLE COMMANDS." }
                 ]
             },
             {
                 word: "help",
                 responses: ["> DISPLAYING AVAILABLE COMMANDS..."],
                 choices: [
-                    { text: "What can you do?", response: "> I CAN RESPOND TO TRIGGERS, SEND TIME NOTIFICATIONS, AND CHAT WITH YOU!" },
-                    { text: "Show examples", response: "> TRY: 'HELLO', 'HELP', 'BYE', 'STATUS', 'TIME' OR JUST CHAT!" },
-                    { text: "Tell joke", response: "> WHY DID THE COMPUTER GO TO THERAPY? IT HAD TOO MANY UNRESOLVED ISSUES! 😄" }
+                    { text: "What can you do?", response: "> I CAN TELL JOKES, PLAY GAMES, AND HAVE FUN CHATS WITH YOU!" },
+                    { text: "Show examples", response: "> TRY: 'HI', 'GAME', 'HELP', OR 'FUN FACT'!" },
+                    { text: "Tell joke", response: "> WHY DID THE COOKIE GO TO THE DOCTOR? BECAUSE IT FELT CRUMMY! 🍪😂" }
+                ]
+            },
+            {
+                word: "game",
+                responses: ["> GAME MENU LOADED. SELECT A GAME TO PLAY!"],
+                choices: [
+                    { 
+                        text: "Math Game", 
+                        response: "> MATH GAME SELECTED! 🧮",
+                        nextChoices: [
+                            { text: "Easy", response: "> EASY MODE ACTIVATED!", gameType: "math", difficulty: "easy" },
+                            { text: "Medium", response: "> MEDIUM MODE ACTIVATED!", gameType: "math", difficulty: "medium" },
+                            { text: "Hard", response: "> HARD MODE ACTIVATED! PREPARE YOURSELF!", gameType: "math", difficulty: "hard" }
+                        ]
+                    },
+                    { 
+                        text: "Guess Number", 
+                        response: "> NUMBER GUESSING GAME! I'M THINKING OF A NUMBER BETWEEN 1-100...",
+                        gameType: "guess",
+                        gameData: { number: Math.floor(Math.random() * 100) + 1, attempts: 0 }
+                    },
+                    { 
+                        text: "Word Game", 
+                        response: "> WORD SCRAMBLE! 📝 UNSCRAMBLE THE WORD!",
+                        gameType: "word"
+                    }
                 ]
             },
             {
@@ -399,11 +492,11 @@
         // ============================================
         // TIME-BASED NOTIFICATIONS CONFIGURATION
         // ============================================
-        
+
         const timeNotifications = [
             { 
-                startHour: 10, 
-                endHour: 12, 
+                startHour: 12, 
+                endHour: 14, 
                 message: "⏰ TIME TO EAT! DON'T FORGET YOUR LUNCH!" 
             },
             { 
@@ -413,20 +506,20 @@
             },
             { 
                 startHour: 18, 
-                endHour: 19, 
-                message: "🌆 DINNER TIME! TAKE A BREAK FROM THE TERMINAL." 
+                endHour: 21, 
+                message: "🌆 DINNER TIME! TAKE A BREAK FROM YOUR IPAD." 
             },
             { 
-                startHour: 14, 
-                endHour: 15, 
-                message: "☕ COFFEE BREAK RECOMMENDED. STRETCH YOUR LEGS!" 
+                startHour: 15, 
+                endHour: 16, 
+                message: "📚 STUDY TIME !" 
             }
         ];
 
         // ============================================
         // DOM ELEMENTS
         // ============================================
-        
+
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
@@ -437,15 +530,16 @@
         const micBtn = document.getElementById('micBtn');
 
         let notifiedTimes = new Set();
-        let speechEnabled = true; // DEFAULT ON
+        let speechEnabled = true;
         let speechSynthesis = window.speechSynthesis;
         let recognition = null;
         let isListening = false;
+        let currentGame = null; // Track active game state
 
         // ============================================
         // SPEECH RECOGNITION SETUP
         // ============================================
-        
+
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
@@ -488,7 +582,7 @@
         // ============================================
         // MICROPHONE BUTTON HANDLER
         // ============================================
-        
+
         micBtn.addEventListener('click', () => {
             if (!recognition) {
                 addMessage("SPEECH RECOGNITION NOT SUPPORTED IN THIS BROWSER.", false);
@@ -505,14 +599,12 @@
         // ============================================
         // SPEECH SYNTHESIS FUNCTION
         // ============================================
-        
+
         function speak(text) {
             if (!speechEnabled || !speechSynthesis) return;
             
-            // Cancel any ongoing speech
             speechSynthesis.cancel();
             
-            // Clean up text for speech (remove terminal characters)
             const cleanText = text.replace(/>/g, '').replace(/\[|\]/g, '').trim();
             
             const utterance = new SpeechSynthesisUtterance(cleanText);
@@ -520,10 +612,8 @@
             utterance.pitch = 1.0;
             utterance.volume = 1.0;
             
-            // Optional: Use a specific voice if available
             const voices = speechSynthesis.getVoices();
             if (voices.length > 0) {
-                // Try to find an English voice
                 const englishVoice = voices.find(v => v.lang.startsWith('en'));
                 if (englishVoice) {
                     utterance.voice = englishVoice;
@@ -536,7 +626,7 @@
         // ============================================
         // TOGGLE SPEECH
         // ============================================
-        
+
         speechToggle.addEventListener('click', () => {
             speechEnabled = !speechEnabled;
             speechToggle.classList.toggle('active', speechEnabled);
@@ -548,7 +638,6 @@
             }
         });
 
-        // Load voices when available
         if (speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = () => {
                 speechSynthesis.getVoices();
@@ -558,7 +647,7 @@
         // ============================================
         // TIME UPDATE FUNCTION
         // ============================================
-        
+
         function updateTime() {
             const now = new Date();
             const timeStr = now.toLocaleTimeString('en-US', { 
@@ -580,10 +669,9 @@
         // ============================================
         // TIME-BASED NOTIFICATIONS
         // ============================================
-        
+
         function checkTimeNotifications(now) {
             const hour = now.getHours();
-            const minute = now.getMinutes();
             const timeKey = `${hour}`;
             
             timeNotifications.forEach(notif => {
@@ -603,7 +691,7 @@
         // ============================================
         // NOTIFICATION BANNER
         // ============================================
-        
+
         function showNotification(message) {
             notification.textContent = message;
             notification.classList.add('active');
@@ -616,7 +704,7 @@
         // ============================================
         // ADD MESSAGE TO CHAT
         // ============================================
-        
+
         function addMessage(text, isUser = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
@@ -634,16 +722,186 @@
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
             
-            // Auto-speak AI messages when speech is enabled
             if (!isUser && speechEnabled) {
                 speak(text);
             }
         }
 
         // ============================================
+        // GAME LOGIC FUNCTIONS
+        // ============================================
+
+        function generateMathQuestion(difficulty) {
+            let num1, num2, operator, answer, question;
+            
+            if (difficulty === 'easy') {
+                num1 = Math.floor(Math.random() * 10) + 1;
+                num2 = Math.floor(Math.random() * 10) + 1;
+                operator = ['+', '-'][Math.floor(Math.random() * 2)];
+            } else if (difficulty === 'medium') {
+                num1 = Math.floor(Math.random() * 50) + 1;
+                num2 = Math.floor(Math.random() * 50) + 1;
+                operator = ['+', '-', '*'][Math.floor(Math.random() * 3)];
+            } else { // hard
+                num1 = Math.floor(Math.random() * 100) + 1;
+                num2 = Math.floor(Math.random() * 50) + 1;
+                operator = ['+', '-', '*', '/'][Math.floor(Math.random() * 4)];
+            }
+            
+            switch(operator) {
+                case '+': answer = num1 + num2; break;
+                case '-': answer = num1 - num2; break;
+                case '*': answer = num1 * num2; break;
+                case '/': 
+                    num1 = num1 * num2;
+                    answer = num1 / num2; 
+                    break;
+            }
+            
+            question = `${num1} ${operator} ${num2} = ?`;
+            return { question, answer };
+        }
+
+        function startMathGame(difficulty) {
+            const mathData = generateMathQuestion(difficulty);
+            currentGame = {
+                type: 'math',
+                difficulty: difficulty,
+                question: mathData.question,
+                answer: mathData.answer,
+                score: 0,
+                questionsAsked: 0
+            };
+            
+            addMessage(`QUESTION 1: ${mathData.question}`, false);
+            addMessage("TYPE YOUR ANSWER OR SAY IT!", false);
+        }
+
+        function checkMathAnswer(userAnswer) {
+            const numAnswer = parseFloat(userAnswer);
+            
+            if (isNaN(numAnswer)) {
+                addMessage("INVALID INPUT. PLEASE ENTER A NUMBER.", false);
+                return;
+            }
+            
+            currentGame.questionsAsked++;
+            
+            if (Math.abs(numAnswer - currentGame.answer) < 0.01) {
+                currentGame.score++;
+                addMessage(`✅ CORRECT! SCORE: ${currentGame.score}/${currentGame.questionsAsked}`, false);
+                
+                if (currentGame.questionsAsked < 5) {
+                    setTimeout(() => {
+                        const mathData = generateMathQuestion(currentGame.difficulty);
+                        currentGame.question = mathData.question;
+                        currentGame.answer = mathData.answer;
+                        addMessage(`QUESTION ${currentGame.questionsAsked + 1}: ${mathData.question}`, false);
+                    }, 1000);
+                } else {
+                    addMessage(`🎉 GAME OVER! FINAL SCORE: ${currentGame.score}/5`, false);
+                    setTimeout(() => {
+                        addChoiceButtons([
+                            { text: "Play Again", response: "> RESTARTING GAME...", gameType: "math", difficulty: currentGame.difficulty },
+                            { text: "Main Menu", response: "> RETURNING TO MENU...", trigger: "game" }
+                        ]);
+                    }, 500);
+                    currentGame = null;
+                }
+            } else {
+                addMessage(`❌ WRONG! CORRECT ANSWER: ${currentGame.answer}`, false);
+                addMessage(`SCORE: ${currentGame.score}/${currentGame.questionsAsked}`, false);
+                
+                if (currentGame.questionsAsked < 5) {
+                    setTimeout(() => {
+                        const mathData = generateMathQuestion(currentGame.difficulty);
+                        currentGame.question = mathData.question;
+                        currentGame.answer = mathData.answer;
+                        addMessage(`QUESTION ${currentGame.questionsAsked + 1}: ${mathData.question}`, false);
+                    }, 1000);
+                } else {
+                    addMessage(`🎉 GAME OVER! FINAL SCORE: ${currentGame.score}/5`, false);
+                    setTimeout(() => {
+                        addChoiceButtons([
+                            { text: "Play Again", response: "> RESTARTING GAME...", gameType: "math", difficulty: currentGame.difficulty },
+                            { text: "Main Menu", response: "> RETURNING TO MENU...", trigger: "game" }
+                        ]);
+                    }, 500);
+                    currentGame = null;
+                }
+            }
+        }
+
+        function checkGuessNumber(userGuess) {
+            const numGuess = parseInt(userGuess);
+            
+            if (isNaN(numGuess) || numGuess < 1 || numGuess > 100) {
+                addMessage("INVALID INPUT. ENTER A NUMBER BETWEEN 1-100.", false);
+                return;
+            }
+            
+            currentGame.gameData.attempts++;
+            
+            if (numGuess === currentGame.gameData.number) {
+                addMessage(`🎉 CORRECT! YOU GUESSED IT IN ${currentGame.gameData.attempts} ATTEMPTS!`, false);
+                setTimeout(() => {
+                    addChoiceButtons([
+                        { text: "Play Again", response: "> NEW NUMBER GENERATED!", gameType: "guess", gameData: { number: Math.floor(Math.random() * 100) + 1, attempts: 0 } },
+                        { text: "Main Menu", response: "> RETURNING TO MENU...", trigger: "game" }
+                    ]);
+                }, 500);
+                currentGame = null;
+            } else if (numGuess < currentGame.gameData.number) {
+                addMessage(`📈 TOO LOW! ATTEMPT: ${currentGame.gameData.attempts}`, false);
+            } else {
+                addMessage(`📉 TOO HIGH! ATTEMPT: ${currentGame.gameData.attempts}`, false);
+            }
+        }
+
+        // Word game words
+        const wordList = [
+            { scrambled: "OELHL", answer: "HELLO" },
+            { scrambled: "TUREOMPC", answer: "COMPUTER" },
+            { scrambled: "GMAE", answer: "GAME" },
+            { scrambled: "NFIRED", answer: "FRIEND" },
+            { scrambled: "PPAHY", answer: "HAPPY" }
+        ];
+
+        function startWordGame() {
+            const word = wordList[Math.floor(Math.random() * wordList.length)];
+            currentGame = {
+                type: 'word',
+                scrambled: word.scrambled,
+                answer: word.answer.toLowerCase(),
+                attempts: 0
+            };
+            
+            addMessage(`UNSCRAMBLE THIS WORD: ${word.scrambled}`, false);
+            addMessage("TYPE YOUR ANSWER!", false);
+        }
+
+        function checkWordAnswer(userAnswer) {
+            currentGame.attempts++;
+            
+            if (userAnswer.toLowerCase() === currentGame.answer) {
+                addMessage(`✅ CORRECT! THE WORD IS: ${currentGame.answer.toUpperCase()}`, false);
+                addMessage(`YOU GOT IT IN ${currentGame.attempts} ATTEMPTS!`, false);
+                setTimeout(() => {
+                    addChoiceButtons([
+                        { text: "Play Again", response: "> NEW WORD LOADING...", gameType: "word" },
+                        { text: "Main Menu", response: "> RETURNING TO MENU...", trigger: "game" }
+                    ]);
+                }, 500);
+                currentGame = null;
+            } else {
+                addMessage(`❌ WRONG! TRY AGAIN. HINT: ${currentGame.scrambled}`, false);
+            }
+        }
+
+        // ============================================
         // ADD CHOICE BUTTONS
         // ============================================
-        
+
         function addChoiceButtons(choices) {
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message ai';
@@ -655,7 +913,7 @@
                 const btn = document.createElement('button');
                 btn.className = 'choice-btn';
                 btn.textContent = `[ ${choice.text} ]`;
-                btn.onclick = () => handleChoice(choice.response, messageDiv);
+                btn.onclick = () => handleChoice(choice, messageDiv);
                 buttonGroup.appendChild(btn);
             });
             
@@ -667,40 +925,77 @@
         // ============================================
         // HANDLE CHOICE BUTTON CLICK
         // ============================================
-        
-        function handleChoice(response, buttonContainer) {
+
+        function handleChoice(choice, buttonContainer) {
             buttonContainer.remove();
             
             typingIndicator.classList.add('active');
             
             setTimeout(() => {
                 typingIndicator.classList.remove('active');
-                addMessage(response, false);
+                addMessage(choice.response, false);
+                
+                // Handle game triggers
+                if (choice.gameType === 'math' && choice.difficulty) {
+                    setTimeout(() => startMathGame(choice.difficulty), 500);
+                } else if (choice.gameType === 'guess') {
+                    currentGame = {
+                        type: 'guess',
+                        gameData: choice.gameData || { number: Math.floor(Math.random() * 100) + 1, attempts: 0 }
+                    };
+                    setTimeout(() => addMessage("GUESS A NUMBER BETWEEN 1-100!", false), 500);
+                } else if (choice.gameType === 'word') {
+                    setTimeout(() => startWordGame(), 500);
+                } else if (choice.trigger) {
+                    setTimeout(() => processInput(choice.trigger), 500);
+                } else if (choice.nextChoices) {
+                    setTimeout(() => addChoiceButtons(choice.nextChoices), 500);
+                }
             }, 800);
         }
 
         // ============================================
         // PROCESS USER INPUT
         // ============================================
-        
+
         function processInput(input) {
             const lowerInput = input.toLowerCase().trim();
             
+            // Check if user is in a game
+            if (currentGame) {
+                if (currentGame.type === 'math') {
+                    checkMathAnswer(input);
+                    return;
+                } else if (currentGame.type === 'guess') {
+                    checkGuessNumber(input);
+                    return;
+                } else if (currentGame.type === 'word') {
+                    checkWordAnswer(input);
+                    return;
+                }
+            }
+            
             // Check for trigger words
             for (let trigger of triggerWords) {
-                if (lowerInput.includes(trigger.word)) {
+                let matched = false;
+                
+                if (trigger.words && Array.isArray(trigger.words)) {
+                    matched = trigger.words.every(word => lowerInput.includes(word));
+                } else if (trigger.word) {
+                    matched = lowerInput.includes(trigger.word);
+                }
+                
+                if (matched) {
                     typingIndicator.classList.add('active');
                     
                     setTimeout(() => {
                         typingIndicator.classList.remove('active');
                         
-                        // Pick a random response
                         const randomResponse = trigger.responses[
                             Math.floor(Math.random() * trigger.responses.length)
                         ];
                         addMessage(randomResponse, false);
                         
-                        // Add choice buttons if available
                         if (trigger.choices && trigger.choices.length > 0) {
                             setTimeout(() => {
                                 addChoiceButtons(trigger.choices);
@@ -723,7 +1018,7 @@
         // ============================================
         // SEND MESSAGE
         // ============================================
-        
+
         function sendMessage() {
             const text = chatInput.value.trim();
             if (text === '') return;
@@ -739,9 +1034,9 @@
         // ============================================
         // EVENT LISTENERS
         // ============================================
-        
+
         sendBtn.addEventListener('click', sendMessage);
-        
+
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 sendMessage();
@@ -751,11 +1046,10 @@
         // ============================================
         // INITIALIZE
         // ============================================
-        
+
         updateTime();
         setInterval(updateTime, 1000);
-        
-        // Boot message with speech
+
         setTimeout(() => {
             addMessage("READY FOR INPUT.", false);
         }, 500);
